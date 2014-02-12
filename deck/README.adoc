@@ -1,0 +1,33 @@
+== Slides
+
+=== Requirements
+
+* Asciidoctor 0.1.4 or higher
+* https://github.com/asciidoctor/asciidoctor-backends/tree/e76aea86e7da174414a6d0c2e4d5553cd89bd226[asciidoctor-backends]
+* https://github.com/mojavelinux/dzslides/tree/80d406ab26900af519ba55ea25a80f59eb5b8237[dzslides]
+* Execute:
+....
+$ git clone --depth 1 https://github.com/asciidoctor/asciidoctor-backends
+$ rm -drf asciidoctor-backends/.git
+$ git clone --depth 1 https://github.com/mojavelinux/dzslides.git
+$ rm -drf dzslides/.git
+....
+
+=== Generating Slides
+
+Execute:
+....
+$ asciidoctor -b dzslides -T asciidoctor-backends/slim/dzslides slides.adoc
+$ open slides.html
+....
+
+=== Generating PDF
+
+Execute:
+....
+$ asciidoctor -b dzslides -T asciidoctor-backends/slim/dzslides -a linkcss -a data-uri slides.adoc
+$ JAVA_HOME=$JDK_8
+$ git clone https://github.com/melix/deck2pdf (follow instructions to build)
+$ deck2pdf --profile=dzslides slides.html slides.pdf
+$ open slides.pdf
+....

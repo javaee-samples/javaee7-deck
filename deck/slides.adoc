@@ -1,0 +1,272 @@
+= The Java EE 7 Platform
+Arun Gupta ; Red Hat; @arungupta
+include::attributes.adoc[]
+
+:experimental:
+:toc2:
+:sectanchors:
+:idprefix:
+:idseparator: -
+:icons: font
+:dzslides-transition: fade
+:source-highlighter: coderay
+
+[.topic.source]
+== Arun Gupta
+
+====
+* Director, Developer Advocacy, Red Hat Inc.
+* O'Reilly and McGraw Hill author
+* Fitness freak
+====
+
+[NOTE ]
+[role="speaker"]
+====
+* My name is Arun Gupta, and I drive community engagement efforts for JBoss at Red Hat
+* I've authored couple of O'Reilly best selling books and another one by McGraw Hill
+* I'm a workout nut as my kids call me and a runner
+====
+
+[.topic.source]
+== Java EE 7 Platform
+image:java-logo.png[]
+=== Jun 2013
+
+
+[NOTE]
+[role="speaker"]
+====
+* Java EE 7 was released in June 2013. That means all 14 component specifications are final, the Reference Implementation is final, and TCK is available for licensees for building their compliant app servers.
+====
+
+[.topic.source]
+== Java EE 7
+image::javaee7.png[]
+
+[NOTE]
+[role="speaker"]
+====
+* Java EE 7 is the latest release of the platform and focuses around increasing productivity and embracing HTML5. WildFly 8 is Java EE 7 compliant and so you get all the technologies from the platform here.
+* WebSocket (JSR 356), Batch (JSR 352), JSON (JSR 353), Concurrency Utilities for Java EE (JSR 236) are four new techonlogies in the platform. JAX-RS 2 (JSR 339) and JMS 2 (JSR 343) went through significant updates. CDI 1.1 (JSR 346), Bean Validation 1.1 (JSR 349), JPA 2.1 (JSR 338), JTA 1.2 (JSR 907) also made updates.
+* Lets take a look at some Java EE 7 sample code.
+====
+
+[.topic.source]
+== Java EE 7 WebSocket
+
+[source,java]
+.+ChatServer.java+
+----
+@ServerEndpoint("/chat") <1>
+public class ChatEndpoint {
+    @OnMessage <2>
+    public void message(String message,
+                        Session client) <3>
+                   throws IOException, EncodeException {
+        for (Session peer : client.getOpenSessions()) {
+            peer.getBasicRemote().sendText(message);
+        }
+    }
+}
+----
+<1> Creates a WebSocket endpoint, defines the listening URL
+<2> Marks the method that receives incoming WebSocket message
+<3> Payload of the WebSocket message
+
+[NOTE]
+[role="speaker"]
+====
+* The Java API for WebSocket, WebSocket 1.0, is a key technology for HTML5 support. WebSocket provides a bi-directional and full-duplex communication channel over a sigle TCP connection.
+* Adding `@ServerEndpoint` annotation on a POJO converts it into a WebSocket server endpoint. No additional deployment descriptors are required. The URL at which the endpoint is published is included in the annotation.
+* The POJO method that needs to be invoked is marked with `@OnMessage` and the payload of the message is automatically mapped to the method parameter.
+* First parameter receives the payload, second parameter marks the conversation from the client.
+* Method implementation iterate over all the connected clients and broadcast the received payload.
+====
+
+[.topic.source]
+== Java EE 7 Batch
+
+[source,xml]
+.+job.xml+
+----
+<job id="myJob" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
+    <step id="myStep" >
+        <chunk item-count="3"> <1>
+            <reader ref="myItemReader"/> <2>
+            <processor ref="myItemProcessor"/> <3>
+            <writer ref="myItemWriter"/> <4>
+        </chunk>
+    </step>
+</job>
+----
+<1> Item-oriented processing, number of items in chunk
+<2> Item reader for chunk processing
+<3> Item processor for chunk processing
+<4> Item writer for chunk processing
+
+[NOTE]
+[role="speaker"]
+====
+* Batch Processing provides item-oriented (aka chunk, and preferred style) and task-oriented (aka batchlet) processing. This is a job description of chunk processing, aka Job XML.
+* Job XML typically consists of many steps, this canonical sample contains one chunk step.
+* This chunk has a reader, processor, and writer. The ref attribute refers to CDI resolvable bean name bundled with the archive.
+* The item-count attribute defines the chunk size, i.e. the number of items processed at one time.
+* The reader, processor, and writer work together for a chunk number of items at a time.
+* All of this is done within a transaction, with automatic checkpointing.
+====
+
+[.topic.source]
+== Java EE 7 JSON
+
+[source,java]
+.+CreateJson.java+
+----
+JsonObject jsonObject = Json.createObjectBuilder() <1>
+                .add("apple", "red") <2>
+                .add("banana", "yellow")
+                .build(); <3>
+StringWriter w = new StringWriter();
+JsonWriter writer = Json.createWriter(w); <4>
+writer.write(jsonObject);
+----
+<1> Creates a JSON object builder
+<2> Adds a name/value pair to the JSON object
+<3> Returns the JSON object associated with this builder
+<4> Writes the JSON object to the writer
+
+[NOTE]
+[role="speaker"]
+====
+* JSON is a key technology for data transfer within HTML5 applications. With JSON 1.0, Java EE 7 adds new APIs to enable the parsing and generation of JSON text and objects.
+* JSON API provides streaming and object model API to parse and generate JSON. This is an object-model API sample.
+* `JSONObject` is created and key/value name pairs are added using convenient `add` methods.
+* Created object can be written to `java.io.Writer` or `java.io.OutputStream`.
+====
+
+[.topic.source]
+== Java EE 7 Concurrency
+
+[source,java]
+.+RunMyTask.java+
+----
+public class MyTask implements Runnable { <1>
+
+    @Override
+    public void run() {
+        . . .
+    }
+}
+
+@Resource(name = "DefaultManagedExecutorService") <2>
+ManagedExecutorService defaultExecutor;
+
+executor.submit(new MyTask()); <3>
+----
+<1> `Runnable` or `Callable` tasks can be submitted
+<2> `ManagedExecutor` is injected, default resource provided
+<3> Submit the task
+
+[NOTE]
+[role="speaker"]
+====
+* Concurrency Utilities is a new addition to the Java EE 7 platform and is an extension of the Java SE Concurrency Utilities API. This API provides asynchronous capabilities to Java EE application components, at a lower level than the existing asynch APIs (offered by EJB, Servlet, JAX-RS), and thus gives you a finer-grain level of control and configuration.
+* API provides 4 types of managed objects, one of them is `ManagedExecutorService`.
+* Task can be defined as `Runnable` or `Callable`.
+* Platform provides a default instance of `ManagedExecutorService` which can be easily injected using `@Resource`.
+* Usual calls from JSR 166y are now available. All standard Java SE Concurrency APIs and design patterns are available for us. The big difference is that the threads created here are managed by the application server now. The JNDI, class loading, security context information is available to these tasks. This was not available earlier.
+====
+
+[.topic.source]
+== Java EE 7 JAX-RS
+
+[source,java]
+.+RunClient.java+
+----
+Client client = ClientBuilder.newClient(); <1>
+WebTarget target = client.target(...); <2>
+target.register(Person.class);
+Person p = target
+             .path("{id}") <3>
+             .resolveTemplate("id", "1")
+             .request(MediaType.APPLICATION_XML) <4>
+             .get(Person.class); <5>
+----
+<1> `ClientBuilder` is the entry point
+<2> Build a new web resource target, specifies the path
+<3> Sub resource URI
+<4> Define the accepted response media types
+<5> Call HTTP GET, specify the type of resource
+
+[NOTE]
+[role="speaker"]
+====
+* JAX-RS 2.0 now adds a client-side API to access a REST endpoint in a standard way.
+* An instance of `Client` is required to access a Web resource using the Client API. The default instance of Client can be obtained by calling newClient on `ClientBuilder`.
+* A Web resource can be accessed using a fluent API in which method invocations are chained to build and ultimately submit an HTTP request.
+* Conceptually, the steps required to submit a request are the following:
+** obtain an instance of `Client`
+** create a `WebTarget`
+** create a request from the `WebTarget`
+** submit a request or get a prepared Invocation for later submission
+* The benefits of using a `WebTarget` become apparent when building complex URIs, for example by ex- tending base URIs with additional path segments or templates. Note the use of the URI template parameter `{orderId}`. The exact value of this template parameter is resolved using `resolveTemplate()` method.
+* The response to a request typed in the invocation of `get()` method. In this case, a String representation is returned back. This can also be a POJO where on-the-wire format is converted to POJO using JAX-RS entity providers.
+====
+
+[.topic.source]
+== Java EE 7 JMS
+
+[source,java]
+.+SendMessage.java+
+----
+@JMSDestinationDefinition(name="myQueue", interfaceName="javax.jms.Queue") <1>
+
+@Resource(mappedName="myQueue")
+Queue syncQueue;
+
+@Inject
+// @JMSConnectionFactory("java:comp/DefaultJMSConnectionFactory") <2>
+private JMSContext context; <3>
+
+context.createProducer().send(syncQueue, "..."); <4>
+----
+<1> Create destination resource during deployment
+<2> Default JMS connection factory
+<3> Main interface of the simplified API
+<4> Fluent builder API, runtime exceptions
+
+[NOTE]
+[role="speaker"]
+====
+* JMS has undergone a major simplification with the JMS 2.0 by offering the simple and easier-to-use API and  offloading developer tasks onto container services.
+* Sending and receiving a message using JMS 1.1 required a lot of boilerplate code. JMS 2.0 has really fixed this with the addition of the new JMS simplified API and, in particular, the `JMSContext` interface.
+* `JMSContext` combines in a single object the functionality of both the `Connection` and the `Session` in the earlier JMS APIs. A container-managed `JMSContext` instance can be obtained by simply injecting it with the `@Inject` annotation. Notice, no `ConnectionFactory` is specified here. In this case, a default JMS ConnectionFactory is used by and this is defined by the platform.
+* A `Destination`, a `Queue` in this case, is injected using `@Resource`. Even this annotation can be created using newly introduced `@JMSDestinationDefintion` annotation which would automatically create the destination.* Finally, the message is sent using method chaining. For example, create a producer using `createProducer()` and then calling `send()` method to send a message to a destination.
+* Really simple and clean. This also improves semantic readability of your code.
+====
+
+[.topic.source]
+== Java EE 7 IDEs
+
+image:netbeans-wildfly.png[] image:eclipse-wildfly.png[] image:intellij-wildfly.png[]
+image:netbeans-logo.png[] image:jbosstools-logo.png[] image:intellij-logo.png[]
+
+[.topic.source]
+== References
+
+NOTE: Java EE 7 samples - https://github.com/javaee-samples/javaee7-samples
+
+NOTE: Reference Implemenation: GlassFish - http://glassfish.org, @glassfish
+
+NOTE: WildFly - http://wildfly.org, http://github.com/wildfly, @WildFlyAS
+
+NOTE: Slides generated with Asciidoctor and DZSlides backend
+
+NOTE: Original slide template - Dan Allen & Sarah White
+
+[.topic.ending, hrole="name"]
+== Arun Gupta
+
+[.footer]
+[icon-twitter]'{zwsp}' @arungupta
+
