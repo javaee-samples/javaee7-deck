@@ -29,31 +29,84 @@ include::attributes.adoc[]
 ====
 
 [.topic.source]
-== Java EE 7 Platform
-image:java-logo.png[]
-=== Jun 2013
-
+== Java EE 7 Themes (JSR 342)
+image::javaee7-themes.png[]
 
 [NOTE]
 [role="speaker"]
 ====
-* Java EE 7 was released in June 2013. That means all 14 component specifications are final, the Reference Implementation is final, and TCK is available for licensees for building their compliant app servers.
+There are 3 major themes of Java EE 7:
+* Delivering HTML5 dynamic, scalable applications
+** Reduce response time with low latency data exchange using WebSockets
+** Simplify data parsing for portable applications with standard JSON support
+** Deliver asynchronous, scalable, high performance RESTful Services and Async Servlets
+* Increasing developer productivity through simplification and new container services
+** Simplify application architecture with a cohesive integrated platform
+** Increase efficiency with reduced boiler-plate code and broader use of annotations
+** Enhance application portability with standard RESTful web service client support
+* And meeting the additional demands of the enterprise by adding new enterprise technologies.
+** Break down batch jobs into manageable chunks for uninterrupted OLTP performance
+** Easily define multithreaded concurrent tasks for improved scalability
+** Deliver transactional applications with choice and flexibility
+
+We'll be exploring all of these aspects in more detail in the context of the new Java EE 7 APIs as we continue this presentation.
 ====
 
 [.topic.source]
-== Java EE 7
-image::javaee7.png[]
+== Top 10 Features in Java EE 7
+
+[.incremental]
+* WebSocket client/server endpoints
+* Batch Applications
+* JSON Processing
+* Concurrency Utilities
+* Simplified JMS API
+* `@Transactional` and `@TransactionScoped`
+* JAX-RS Client API
+* Default Resources
+* More annotated POJOs
+* Faces Flow
 
 [NOTE]
 [role="speaker"]
 ====
-* Java EE 7 is the latest release of the platform and focuses around increasing productivity and embracing HTML5. WildFly 8 is Java EE 7 compliant and so you get all the technologies from the platform here.
-* WebSocket (JSR 356), Batch (JSR 352), JSON (JSR 353), Concurrency Utilities for Java EE (JSR 236) are four new techonlogies in the platform. JAX-RS 2 (JSR 339) and JMS 2 (JSR 343) went through significant updates. CDI 1.1 (JSR 346), Bean Validation 1.1 (JSR 349), JPA 2.1 (JSR 338), JTA 1.2 (JSR 907) also made updates.
-* Lets take a look at some Java EE 7 sample code.
+* There is first class support for creating and deploying WebSocket endpoints. There is a standard W3C JavaScript API that can be used from browsers but this API also introduces a client endpoint.
+* In-built support for Batch applications allows to remove dependency on third-party frameworks.
+* Native support for JSON processing allows to make the application light-weight and getting rid of third party libraries.
+* Concurrency Utilities extends JSR standard Java SE Concurrency Utilities and add asynchronous capabilities to Java EE application components.
+* JMS API has been extremely simplified by leveraging CDI, Autocloseable, and other features of the language.
+* Deliver transactional applications with choice and flexibility, use @Transactional to enable transactions on any POJO.
+* JAX-RS added a new Client API to invoke a REST endpoint using a fluent builder API.
+* Default resources like JDBC DataSource, JMS ConnectionFactory, etc are added to simplify OOTB experience.
+* More annotations have been added to simplify devops experience such as @JMSDestinationDefinition that automatically creates a JMS destination.
+* JSF added Faces Flow that allows to create reusable modules to capture a flow of pages together.
 ====
 
 [.topic.source]
-== Java EE 7 WebSocket
+== Java API for WebSocket 1.0 (JSR 356)
+
+* Server and Client WebSocket Endpoint
+** Annotated: `@ServerEndpoint`, `@ClientEndpoint`
+** Programmatic: `Endpoint`
+* Lifecycle methods
+** `@OnOpen`, `@OnClose`, `@OnError`, `@OnMessage`
+* Packaging and Deployment
+
+[NOTE]
+[role="speaker"]
+====
+* The Java API for WebSocket, WebSocket 1.0, is a key technology for HTML5 support.
+* Enables highly efficient  communication between client and server websocket endpoints over a single, bidirectional *and* full-duplex TCP connection, held for the duration of the client/server session.
+* WebSocket API offers a very convenient annotation-based approach to writing websocket endpoints.
+* Adding @ServerEndpoint annotation on a POJO converts it into a WebSocket server endpoint. No additional deployment descriptors are required. The URL at which the endpoint is published is included in the annotation. The POJO method that needs to be invoked is marked with @OnMessage and the payload of the message is automatically mapped to the method parameter. 
+* The definition of a client endpoint is very similar, using instead the ClientEndpoint annotation.
+For either case, there is also a programmatic API that allows you to drop down to dynamically control the configuration and the communication.
+* Using either the annotation or the programmatic approach, you can also define callback handlers for lifecycle events -- for example when a connection is opened, closed, or an error is received.
+* Websocket server and clients endpoints and associated classes and be conveniently packaged and deployed using the standard Java EE approach.
+====
+
+[.topic.source]
+== WebSocket Sample
 
 [source,java]
 .+ChatServer.java+
@@ -77,7 +130,6 @@ public class ChatEndpoint {
 [NOTE]
 [role="speaker"]
 ====
-* The Java API for WebSocket, WebSocket 1.0, is a key technology for HTML5 support. WebSocket provides a bi-directional and full-duplex communication channel over a sigle TCP connection.
 * Adding `@ServerEndpoint` annotation on a POJO converts it into a WebSocket server endpoint. No additional deployment descriptors are required. The URL at which the endpoint is published is included in the annotation.
 * The POJO method that needs to be invoked is marked with `@OnMessage` and the payload of the message is automatically mapped to the method parameter.
 * First parameter receives the payload, second parameter marks the conversation from the client.
@@ -85,100 +137,268 @@ public class ChatEndpoint {
 ====
 
 [.topic.source]
-== Java EE 7 Batch
+== Java API for JSON Processing 1.0 (JSR 353)
+
+* API to parse and generate JSON
+* Streaming API
+** Low-level, efficient way to parse/generate JSON
+** Similar to StAX API in XML world
+* Object Model API
+** Simple, easy to use high-level API
+** Similar to DOM API in XML world
+
+[NOTE]
+[role="speaker"]
+====
+* JSON is a key technology for data transfer within HTML5 applications, and certainly a lingua franca of the web. With JSON 1.0, Java EE 7 adds new APIs to enable the parsing and generation of JSON text and objects.
+* There are 2 forms that these APIs take:
+* A streaming API -- which is a low level, highly efficient event-driven API for the parsing and generation of JSON text, similar to StAX in the  XML world. Streaming API generates events such as START_OBJECT, START_ARRAY, KEY_NAME, and VALUE_STRING.
+* And, more conveniently, an easy-to-use, higher-level object-level API for mapping JSON text into JSON objects and arrays similar to the DOM API in the XML world.
+* Object Model API reads the entire JSON text in the memory and allows to cross-reference objects. If you just want to parse specific parts of JSON text then use Streaming API.
+* In both cases, read JSON data structure from a Reader/InputStream. Write to a Writer/OutputStream.
+====
+
+[.topic.source]
+== JSON-P Sample
+
+[source,json]
+----
+{
+  "firstName": "John",
+  "lastName": "Smith",
+  "age": 25,
+  "phoneNumber": [
+    { "type": "home", "number": "212 555-1234" },
+    { "type": "fax", "number": "646 555-4567" }
+  ]
+}
+----
+
+[source,java]
+----
+JsonParser p = Json.createParser("...");
+JsonParser.Event event = p.next();          // START_OBJECT
+event = p.next();                           // KEY_NAME
+event = p.next();                           // VALUE_STRING
+String name = p.getString();                // "John”
+----
+
+
+[NOTE]
+[role="speaker"]
+====
+* The slide show a simple JSON fragment. JSON is a collection of name/value pairs and an ordered list of values. This JSON fragment has several name/value pairs. The first such name/value pair has name “firstName” and value of “John”. Similarly two more name/value pairs. Then there is an array element with name “phoneNumber” and an ordered list of values.
+* The lower part of the slide shows a code fragment on how to create a JsonParser. It can read data from a Stream or a Reader. Iterating through the parser using next() allows to see the different events being emitted. The call to first next places the parser right after the opening {. Call to another next places the parser after “firstName”, and finally the third call to next() places it right after “John”. Calling getString() returns the current value.
+====
+
+[.topic.source]
+== Batch Applications for Java Platform 1.0 (JSR 352)
+
+* Suited for non-interactive, bulk-oriented, and long-running tasks
+* Batch execution: sequential, parallel, decision-based
+* Processing Styles
+** Item-oriented: Chunked (primary)
+** Task-oriented: Batchlet
+
+
+[NOTE]
+[role="speaker"]
+====
+* The ability to execute batch jobs from Java EE is very important for many enterprise customers.  
+* The new Batch Applications for Java API is therefore targeted at non-interactive, bulk-oriented, long-running tasks.  
+* It allows you to customize the handling of these jobs in terms of their individual steps.  You can specify sequential or parallel execution as well as decisions that direct the execution path.  
+* The Batch API also provides for checkpointing and callback mechanisms.
+* An individual batch job step may itself be a "chunk", whereby you can specify separately the handling of the input, the processing, and the output of the individual items that are part of the chunk.  
+* Or a step may be a "batchlet", which provides a more roll-your-own style of the step task's execution.
+====
+
+[.topic.source]
+== Batch Sample
 
 [source,xml]
-.+job.xml+
+.+myJob.xml+
 ----
 <job id="myJob" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
-    <step id="myStep" >
-        <chunk item-count="3"> <1>
-            <reader ref="myItemReader"/> <2>
-            <processor ref="myItemProcessor"/> <3>
-            <writer ref="myItemWriter"/> <4>
-        </chunk>
-    </step>
+  <step id="sendStatements">
+    <chunk item-count="3">
+      <reader ref="accountReader"/>
+      <processor ref="accountProcessor"/>
+      <writer ref="emailWriter"/>
+
 </job>
 ----
-<1> Item-oriented processing, number of items in chunk
-<2> Item reader for chunk processing
-<3> Item processor for chunk processing
-<4> Item writer for chunk processing
 
 [NOTE]
 [role="speaker"]
 ====
-* Batch Processing provides item-oriented (aka chunk, and preferred style) and task-oriented (aka batchlet) processing. This is a job description of chunk processing, aka Job XML.
-* Job XML typically consists of many steps, this canonical sample contains one chunk step.
-* This chunk has a reader, processor, and writer. The ref attribute refers to CDI resolvable bean name bundled with the archive.
-* The item-count attribute defines the chunk size, i.e. the number of items processed at one time.
-* The reader, processor, and writer work together for a chunk number of items at a time.
-* All of this is done within a transaction, with automatic checkpointing.
+* A Job is defined using Job Specification Language. For Java EE 7, this is defined using an XML document, called as Job XML.
+* Job XML typically consists of many steps, this contains one simple step. The step is either a chunk or batchlet – this one is chunk. This one is a chunk and has a reader, processor, and writer. The ref attribute refers to CDI resolvable bean name bundled with the archive. The item-count attribute defines the chunk size, i.e. the number of items processed at one time. The reader, processor, and writer work together for a chunk number of items at a time. All of this is done within a transaction, with automatic checkpointing.
+* Now lets take a look how reader, processor, and writer are implemented. This Job XML defines a simple use case of sending regular email statements.
 ====
 
 [.topic.source]
-== Java EE 7 JSON
+== Batch Sample (contd)
 
 [source,java]
-.+CreateJson.java+
+.+AccountReader.java+
 ----
-JsonObject jsonObject = Json.createObjectBuilder() <1>
-                .add("apple", "red") <2>
-                .add("banana", "yellow")
-                .build(); <3>
-StringWriter w = new StringWriter();
-JsonWriter writer = Json.createWriter(w); <4>
-writer.write(jsonObject);
+... implements ItemReader {
+  public Object readItem() {
+    // read account using JPA
+  }
 ----
-<1> Creates a JSON object builder
-<2> Adds a name/value pair to the JSON object
-<3> Returns the JSON object associated with this builder
-<4> Writes the JSON object to the writer
+
+[source,java]
+.+AccountProcessor.java+
+----
+...implements ItemProcessor {
+  public Object processItems(Object account) {
+    // read Account, return Statement
+  }
+----
+
+[source,java]
+.+EmailWriter.java+
+----
+...implements ItemWriter {
+  public void writeItems(List accounts) {
+    // use JavaMail to send email
+  }
+----
 
 [NOTE]
 [role="speaker"]
 ====
-* JSON is a key technology for data transfer within HTML5 applications. With JSON 1.0, Java EE 7 adds new APIs to enable the parsing and generation of JSON text and objects.
-* JSON API provides streaming and object model API to parse and generate JSON. This is an object-model API sample.
-* `JSONObject` is created and key/value name pairs are added using convenient `add` methods.
-* Created object can be written to `java.io.Writer` or `java.io.OutputStream`.
+* Reader implements ItemReader interface. The main method to override there is readItem which reads the item – this could be from any stream or database or JMS queue. For example, you may read Account information using JPA.
+* Processor implements ItemProcessor interface. processItem takes the item just read, applies business processing and returns a new object (possibly different type). This new object is now aggregated with the writer. For example, you may read an Account object and return a Statement object.
+* Writer implements ItemWriter interface. writeItems has a List parameter where all the aggregated items are available and writes it out. In our case, you will use JavaMail to send an email to List<Statement>.
 ====
 
 [.topic.source]
-== Java EE 7 Concurrency
+== Concurrency Utilities for Java EE 1.0 (JSR 236)
+
+* Extension of Java SE Concurrency Utilities API
+* Provide asynchronous capabilities to Java EE application components
+* Provides 4 types of managed objects
+** `ManagedExecutorService`
+** `ManagedScheduledExecutorService`
+** `ManagedThreadFactory`
+** `ContextService`
+* Context Propagation
+
+
+[NOTE]
+[role="speaker"]
+====
+* Another new API in this release is the Concurrency Utilities for Java EE API.
+* This is an extension of the Java SE Concurrency Utilities API, for use in the Java EE container-managed environment so that the proper container-managed  runtime context can be made available for the execution of these tasks—
+** for example, naming (injection or JNDI), security, classloaders, etc.   
+** UTx API can be used within the concurrent tasks.]
+* This API provides asynchronous capabilities to Java EE application components, at a lower level than the existing asynch APIs (offered by EJB, Servlet, JAX-RS), and thus gives you a finer-grain level of control and configuration. 
+** You can define your own runnable and callable tasks that can be invoked using these APIs.
+* The Concurrency Utilities API provides 4 types of managed objects.
+* The first 3 of these correspond to the Java SE concurrent APIs.
+* The ContextService allows you to convey a component's managed runtime context through to additional execution points where this context would not otherwise apply.
+====
+
+[.topic.source]
+== Concurrency Utilities Sample
 
 [source,java]
-.+RunMyTask.java+
 ----
-public class MyTask implements Runnable { <1>
+@Resource(name=“java:comp/DefaultManagedExecutorService”)
+ManagedExecutorService executor; <1>
 
-    @Override
-    public void run() {
-        . . .
-    }
+Future future = executor.submit(new MyTask()); <2>
+
+class MyTask implements Runnable {
+  public void run() {
+    . . . <3>
+  }
 }
-
-@Resource(name = "DefaultManagedExecutorService") <2>
-ManagedExecutorService defaultExecutor;
-
-executor.submit(new MyTask()); <3>
 ----
-<1> `Runnable` or `Callable` tasks can be submitted
-<2> `ManagedExecutor` is injected, default resource provided
-<3> Submit the task
+<1> ManagedExecutorService using default resource
+<2> Standard Java SE Concurrency APIs
+<3> Task logic
 
 [NOTE]
 [role="speaker"]
 ====
-* Concurrency Utilities is a new addition to the Java EE 7 platform and is an extension of the Java SE Concurrency Utilities API. This API provides asynchronous capabilities to Java EE application components, at a lower level than the existing asynch APIs (offered by EJB, Servlet, JAX-RS), and thus gives you a finer-grain level of control and configuration.
-* API provides 4 types of managed objects, one of them is `ManagedExecutorService`.
-* Task can be defined as `Runnable` or `Callable`.
-* Platform provides a default instance of `ManagedExecutorService` which can be easily injected using `@Resource`.
-* Usual calls from JSR 166y are now available. All standard Java SE Concurrency APIs and design patterns are available for us. The big difference is that the threads created here are managed by the application server now. The JNDI, class loading, security context information is available to these tasks. This was not available earlier.
+* ManagedExecutorService can be obtained using @Resource. In this case, we are referring to the default ManagedExecutorService available via JNDI but these resources can be created in an application-server specific way. Now using the standard APIs, such as submit, a Runnable or Callable task can be easily submitted. The business logic of the task is implemented in run method.
+* All standard Java SE Concurrency APIs and design patterns are available for us. The big difference is that the threads created here are managed by the application server now. The JNDI, class loading, security context information is available to these tasks. This was not available earlier.
+====
+
+[.topic.source]
+== Java Message Service 2.0
+
+* New JMSContext interface
+* AutoCloseable `JMSContext`, `Connection`, `Session`, …
+* Use of runtime exceptions
+* Method chaining on `JMSProducer`
+* Simplified message sending
+
+[NOTE]
+[role="speaker"]
+====
+* A big focus area of Java EE 7 is in increasing developer productivity by continuing our trend in offering simpler and easier-to-use APIs and in offloading developer tasks onto container services.  
+* JMS in particular has undergone a major simplification with the JMS 2.0 release which is part of Java EE 7.
+* Sending and receiving a message using JMS 1.1 required a lot of boilerplate code.
+* JMS 2.0 has really fixed this with the addition of the new JMS simplified API and, in particular, the JMSContext interface. 
+* The JMSContext combines in a single object the functionality of both the Connection and the Session in the earlier JMS APIs.  You can obtain a JMSContext object by simply injecting it with the @Inject annotation.
+* There are many other simplifications in JMS as well -- to mention a few, AutoCloseable JMSContext, Session, Connection, JMSProducer and JMSConsumer objects
+* The use of runtime exceptions rather than checked exceptions
+* The use of method chaining for JMSProducers
+* Simplified message sending -- no need to create separate Message object, you can specify the message body as an argument to the send method instead.
+====
+
+[.topic.source]
+== JMS 2.0 Sample
+
+[source,java]
+----
+@JMSDestinationDefinition(name="myQueue", interfaceName="javax.jms.Queue") <1>
+
+@Resource(mappedName="myQueue")
+Queue syncQueue;
+
+@Inject
+// @JMSConnectionFactory("java:comp/DefaultJMSConnectionFactory") <2>
+private JMSContext context; <3>
+
+context.createProducer().send(syncQueue, "..."); <4>
+----
+<1> Create destination resource during deployment
+<2> Default JMS connection factory
+<3> Main interface of the simplified API
+<4> Fluent builder API, runtime exceptions
+
+[NOTE]
+[role="speaker"]
+====
+* This is the code used to send a message using simplified API.
+* First of all, JMSContext is injected using standard CDI syntax. Notice, no ConnectionFactory is specified here. In this case, a default JMS ConnectionFactory is used by and this is defined by the platform.
+* A Destination, a Queue in this case, is injected using @Resource. Even this annotation can be created using newly introduced @JMSDestinationDefintion annotation which would automatically create the destination.
+* Finally, the message is sent using method chaining. For example, create a producer using createProducer() and then calling send() method to send a message to a destination.
+* Really simple and clean. This also improves semantic readability of your code.
+Encourage the audience to applause!
 ====
 
 [.topic.source]
 == Java EE 7 JAX-RS
+
+* Client API
+* Message Filters and Entity Interceptors
+* Asynchronous Processing – Server and Client
+* Common Configuration
+
+[NOTE]
+[role="speaker"]
+====
+JAX-RS 1.1 was a server-side API and introduced standard annotations to publish a REST endpoint. JAX-RS 2.0 now adds a client-side API to access a REST endpoint in a standard way. It provides a higher-level API than HttpURLConnection as well as integration with JAX-RS providers.
+====
+
+[.topic.source]
+== JAX-RS Client API Sample
 
 [source,java]
 .+RunClient.java+
@@ -214,35 +434,151 @@ Person p = target
 ====
 
 [.topic.source]
-== Java EE 7 JMS
+== Contexts and Dependency Injection 1.1 (JSR 346)
 
-[source,java]
-.+SendMessage.java+
-----
-@JMSDestinationDefinition(name="myQueue", interfaceName="javax.jms.Queue") <1>
-
-@Resource(mappedName="myQueue")
-Queue syncQueue;
-
-@Inject
-// @JMSConnectionFactory("java:comp/DefaultJMSConnectionFactory") <2>
-private JMSContext context; <3>
-
-context.createProducer().send(syncQueue, "..."); <4>
-----
-<1> Create destination resource during deployment
-<2> Default JMS connection factory
-<3> Main interface of the simplified API
-<4> Fluent builder API, runtime exceptions
+* Automatic enablement for beans with scope annotation and EJBs
+* ``beans.xml'' is optional
+* Bean discovery mode
+** `all`: All types
+** `annotated`: Types with bean defining annotation
+** `none`: Disable CDI
+* `@Vetoed` for programmatic disablement of classes
+* Global ordering/priority of interceptors and decorators
 
 [NOTE]
 [role="speaker"]
 ====
-* JMS has undergone a major simplification with the JMS 2.0 by offering the simple and easier-to-use API and  offloading developer tasks onto container services.
-* Sending and receiving a message using JMS 1.1 required a lot of boilerplate code. JMS 2.0 has really fixed this with the addition of the new JMS simplified API and, in particular, the `JMSContext` interface.
-* `JMSContext` combines in a single object the functionality of both the `Connection` and the `Session` in the earlier JMS APIs. A container-managed `JMSContext` instance can be obtained by simply injecting it with the `@Inject` annotation. Notice, no `ConnectionFactory` is specified here. In this case, a default JMS ConnectionFactory is used by and this is defined by the platform.
-* A `Destination`, a `Queue` in this case, is injected using `@Resource`. Even this annotation can be created using newly introduced `@JMSDestinationDefintion` annotation which would automatically create the destination.* Finally, the message is sent using method chaining. For example, create a producer using `createProducer()` and then calling `send()` method to send a message to a destination.
-* Really simple and clean. This also improves semantic readability of your code.
+* CDI is making the platform lot more cohesive and is becoming a core component model.
+* Also, CDI is now enabled by default in Java EE 7, without the requirement to specify a beans.xml descriptor. 
+* If beans.xml exists with version 1.1, then a new attribute bean-discovery-mode can be specified on the top level <beans>. “all” value can be specified to enable injection all beans in the archive. “annotated” value is used to inject beans with a bean defining annotation – such as one with a CDI scope. And “none” can be used to completely disable CDI.
+* A new annotation @Vetoed is added to enable programmatic disablement of classes. This functionality was available in other frameworks and now in the standards.
+====
+
+[.topic.source]
+== Bean Validation 1.1 (JSR 349)
+
+* Alignment with Dependency Injection
+* Method-level validation
+** Constraints on parameters and return values
+** Check pre-/post-conditions
+* Integration with JAX-RS
+
+[NOTE]
+[role="speaker"]
+====
+* The first version introduced Bean Validation integration with just JPA and JSF. 
+* Now Bean Validation 1.1 is more tightly aligned with the platform. For example, now validation constraints can be specified on POJO – either to validate the method parameters or return type. If the constraints specified on method parameters are not met, i.e. the pre-conditions are not met, then a ConstraintViolationException is thrown. Similarly if the constraint specified on the return type is not met then a ConstraintViolationException is thrown instead of returning the result. This ensures that post-conditions of invoking the method are met correctly.
+* BV 1.1 also introduces an integration with JAX-RS. So you can specify these constraints on your JAX-RS endpoints and the constraints are automatically verified.
+====
+
+[.topic.source]
+== Bean Validation Sample
+
+[source,java]
+----
+public void placeOrder(
+  @NotNull String productName, <1>
+  @NotNull @Max("10") Integer quantity, <1>
+  @Customer String customer) { <2>
+  //. . .
+}
+----
+<1> Built-in constraints on method parameters
+<2> Custom constraints on method parameters
+
+[source,java]
+----
+@Future <1>
+public Date getAppointment() {
+  //. . .
+}
+----
+<1> Built-constraint on return value
+
+[NOTE]
+[role="speaker"]
+====
+* This code shows two simple methods, one with a few parameters and void return type. Another method with no parameters and a Date return type.
+* In the first method, @NotNull is specified on the first two constraint ensuring that none of these parameters are null. The second parameter also has @Max indicating that this parameter cannot be more than 10. These are built-in constraints.
+* A custom constraint, such as @Customer, the one specified on the third parameter, can be specified. This custom constraint will define application-specific constraint logic.
+* There is no need to call if/else within a method. This validation will be automatically triggered using standard CDI Interceptor Bindings and trigger ConstraintViolationException is the constraints are not met.
+* Similarly, for getAppointment() method, if the return value is not in future, per the current JVM timestamp, then a ConstraintViolationException is thrown as well.
+* In first case, if pre conditions is not met otherwise then the method is not invoked. In the second case, post conditions must be met for a clean invocation of the method.
+====
+
+[.topic.source]
+== Java Persistence API 2.1 (JSR 338)
+
+* Schema Generation
+** `javax.persistence.schema-generation.*` properties
+* Unsynchronized Persistence Contexts
+* Bulk update/delete using Criteria
+* User-defined functions using FUNCTION
+* Stored Procedure Query
+
+
+[NOTE]
+[role="speaker"]
+====
+* JPA allows to generate an Entity from a database table. JPA 2.1 adds new javax.persistence.schema-generation.* properties that allow to generate database schema or scripts from Entity classes. There is also a provision to load the database, i.e. DML, using these properties.
+* By default, a container-managed persistence context is of SynchronizationType.SYNCHRO- NIZED and is automatically joined to the current transaction. A persistence context of SynchronizationType.UNSYNCHRONIZED will not be enlisted in the current transaction, unless the EntityManager joinTransaction method is invoked. Similarly, by default, an application-managed persistence context that is associated with a JTA entity manager and that is created within the scope of an active transaction is automatically joined to that transaction. An application-managed JTA persistence context that is created outside the scope of a transaction or an application-managed persistence context of type SynchronizationType.UNSYNCHRONIZED will not be joined to that transaction unless the EntityManager joinTransaction method is invoked. 
+* JPA 2 added typesafe Criteria API but that allowed only querying the database. JPA 2.1 updates the API to allow update/delete as well.
+* JPA 2.1 also adds the capability to invoke a stored procedure or user defined functions.
+====
+
+[.topic.source]
+== Servlet 3.1 (JSR 340)
+
+* Non-blocking I/O
+** `ReadListener` and `WriteListener`
+* Protocol Upgrade
+* Security Enhancements
+** `<deny-uncovered-http-methods>` Deny request to HTTP methods not explicitly covered
+
+
+[NOTE]
+[role="speaker"]
+====
+* Until Servlet 3.0, any request processing, i.e. reading from a ServletInputStream is blocked. Servlet 3.1 introduces non-blocking I/O. Non-blocking request processing in the Web Container helps improve the ever increasing demand for improved Web Container scalability, increase the number of connections that can simultaneously be handled by the Web Container. Non- blocking IO in the Servlet container allows developers to read data as it becomes available or write data when possible to do so. Non-blocking IO only works with async request processing in Servlets and Filters. We’ll take a look at real code in the next slide.
+** Servlet 3.1 introduces a new interface ReadListener. This class represents a call-back mechanism that will notify implementations as HTTP request data becomes available to be read without blocking. Application creates an implementation of ReadListener and set it on the ServletInputStream. Remember this works only in asynchronous Servlets.
+* In HTTP/1.1, the Upgrade general-header allows the client to specify the additional communication protocols that it supports and would like to use. If the server finds it appropriate to switch protocols, then new protocols will be used in subsequent communication. The servlet container provides an HTTP upgrade mechanism. However the servlet container itself does not have knowledge about the upgraded protocol. The protocol processing is encapsulated in the HttpUpgradeHandler. Data reading or writing between the servlet container and the HttpUpgradeHandler is in byte streams. When an upgrade request is received, the servlet can invoke the HttpServletRequest.upgrade method, which starts the upgrade process. This method instantiates the given HttpUpgradeHandler class. The returned HttpUpgradeHandler instance may be further customized. 
+* Last but not the least, Servlet 3.1 has made some improvements in security. By default, an HTTP method listed in security-constraint in web.xml is protected by the specified constraints. HTTP methods that are not specified in any of the constraints are called as "uncovered" HTTP methods. For example, if GET is specified in the constraint then POST, PUT, DELETE, and other HTTP methods are uncovered. Servlet 3.1 adds a new element that can be specified in web.xml. <deny-uncovered-http-methods> denies the request to all uncovered HTTP methods.
+====
+
+[.topic.source]
+== Java Server Faces 2.2 (JSR 344)
+
+* Faces Flow
+* Resource Library Contracts
+* HTML5 Friendly Markup Support
+** Pass through attributes and elements
+* Cross Site Request Forgery Protection
+* Loading Facelets via ResourceHandler
+* `h:inputFile` New File Upload Component
+
+[NOTE]
+[role="speaker"]
+====
+* Faces Flow provides an encapsulation of related views/pages with an application defined entry and exit points. For example, a check out cart can consist of cart page, credit card details page, shipping address page, and confirmation page. All these pages, along with required resources and beans, can be packaged together as a module which can then be reused in other applications. Each flow has a well-defined entry and exit point that have been assigned some application specific meaning by the developer. Usually the objects in a faces flow are designed to allow the user to accomplish a task that requires input over a number of different views. In our case, the navigation between pages for selecting items, entering shipping address, credit card details, and confirmation page would make a flow. All the pages and objects that deal with the checking out process can be composed as modules. An application thus become a collection of flows instead of just views.
+* JavaServer Faces 2 introduced Facelets as the default View Declaration Language. Facelets allows to create templates using XHTML and CSS that can be then used to provide a consistent look-and-feel across different pages of an application. JSF 2.2 defines Resource Library Contracts that allow facelet templates to be applied to an entire application in a reusable and interchangeable manner. 
+* Previously, all attributes used for JSF components could only be those that were understood by JSF itself.  With JSF 2.2, JSF now adds HTML5-friendly markup support with its new pass-through attributes and elements.  
+* These allow you to list arbitrary name/value pairs in a component that are passed through directly to the browser without interpretation by the JSF UIComponent or Renderer. HTML5 adds a series of new attributes for existing elements.  These attributes include things like the type attribute for input elements, supporting values such as email, url, telephone, range, date, and even color.  There are also data-*attributes. So, in the code snippet here, the input text element is bound to an EL expression, and we're using a pass-through type attribute.
+* A new h:inputFile component has been added that allows a file to be uploaded seamlessly using JSF. This uses the multipart support that comes from Servlet.
+====
+
+[.topic.source]
+== Java Transaction API 1.2 (JSR 907)
+
+* `@Transactional` Define transaction boundaries on CDI managed beans
+* `@TransactionScoped` CDI scope for bean instances scoped to the active JTA transaction
+
+
+[NOTE]
+[role="speaker"]
+====
+* A significant change in JTA allows to convert any POJO into a transactional object.
+* The javax.transaction.Transactional annotation provides the application the ability to declaratively control transaction boundaries on CDI managed beans, as well as classes defined as managed beans by the Java EE specification, at both the class and method level where method level annotations override those at the class level. 
+* The javax.transaction.TransactionScoped annotation provides the ability to specify a standard CDI scope to define bean instances whose lifecycle is scoped to the currently active JTA transaction. This annotation has no effect on classes which have non-contextual references such those defined as managed beans by the Java EE specification .
 ====
 
 [.topic.source]
@@ -256,9 +592,9 @@ image:netbeans-logo.png[] image:jbosstools-logo.png[] image:intellij-logo.png[]
 
 NOTE: Java EE 7 samples - https://github.com/javaee-samples/javaee7-samples
 
-NOTE: Reference Implemenation: GlassFish - http://glassfish.org, @glassfish
+NOTE: Reference Implementaion: GlassFish - http://glassfish.org, @glassfish
 
-NOTE: WildFly - http://wildfly.org, http://github.com/wildfly, @WildFlyAS
+NOTE: WildFly 8 - http://wildfly.org, http://github.com/wildfly, @WildFlyAS
 
 NOTE: Slides generated with Asciidoctor and DZSlides backend
 
