@@ -1,0 +1,231 @@
+= Java API for WebSocket
+Arun Gupta ; Red Hat; @arungupta
+include::attributes.adoc[]
+
+[.topic.source]
+== Arun Gupta
+
+====
+* Director, Developer Advocacy, Red Hat Inc.
+* O'Reilly and McGraw Hill author
+* Fitness freak
+====
+
+[NOTE ]
+[role="speaker"]
+====
+* My name is Arun Gupta, and I drive community engagement efforts for JBoss at Red Hat
+* I've authored couple of O'Reilly best selling books and another one by McGraw Hill
+* I'm a workout nut as my kids call me and a runner
+====
+
+[.topic.source]
+== Agenda
+
+====
+* Primer on WebSocket
+* _JSR 356_: Java API for WebSocket 1.0
+====
+
+[.topic.source]
+== Interactive Web Sites
+
+[.incremental]
+* HTTP is half-duplex
+* HTTP is verbose
+* Hacks for Server Push
+** Polling
+** Long Polling
+** Comet/Ajax
+** Complex, Inefficient, Wasteful
+
+
+[NOTE]
+[role="speaker"]
+====
+Historically, creating web applications that need bidirectional communication between a client and a server (e.g., instant messaging and gaming applications) has required an abuse of HTTP to poll the server for updates while sending upstream notifications as distinct HTTP calls. This results in a variety of problems:
+
+* The server is forced to use a number of different underlying TCP connections for each client: one for sending information to the client and a new one for each incoming message.
+* The wire protocol has a high overhead, with each client-to-server message having an HTTP header.
+* The client-side script is forced to maintain a mapping from the outgoing connections to the incoming connection to track replies.
+
+A simpler solution would be to use a single TCP connection for traffic in both directions.  This is what the WebSocket Protocol provides.  Combined with the WebSocket API, it provides an alternative to HTTP polling for two-way communication from a web page to a remote server. The same technique can be used for a variety of web applications: games, stock tickers, multiuser applications with simultaneous editing, user interfaces exposing server-side services in real time, etc.
+
+* The WebSocket Protocol is designed to supersede existing bidirectional communication technologies that use HTTP as a transport layer to benefit from existing infrastructure (proxies, filtering, authentication).  Such technologies were implemented as trade-offs between efficiency and reliability because HTTP was not initially meant to be used for bidirectional communication (see [RFC6202] for further discussion).  The WebSocket Protocol attempts to address the goals of existing bidirectional HTTP technologies in the context of the existing HTTP infrastructure; as such, it is designed to work over HTTP ports 80 and 443 as well as to support HTTP proxies and intermediaries, even if this implies some complexity specific to the current environment.
+* The WebSocket Protocol attempts to address the goals of existing bidirectional HTTP technologies in the context of the existing HTTP infrastructure; as such, it is designed to work over HTTP ports 80 and 443 as well as to support HTTP proxies and intermediaries, even if this implies some complexity specific to the current environment. However, the design does not limit WebSocket to HTTP, and future implementations could use a simpler handshake over a dedicated port without reinventing the entire protocol. This last point is important because the traffic patterns of interactive messaging do not closely match standard HTTP traffic and can induce unusual loads on some components. 
+====
+
+[.topic.source]
+== WebSocket to the rescue
+
+* TCP based, bi-directional, full-duplex messaging
+* Originally proposed as part of HTML5
+* IETF-defined _Protocol_: RFC 6455
+** Handshake
+** Data Transfer
+* W3C defined _JavaScript API_
+** Candidate Recommendation
+
+[.topic.source]
+== What's the basic idea ?
+
+[.incremental]
+* Upgrade HTTP to WebSocket (_single TCP connection_)
+** Transparent to proxies, firewalls, and routers
+* Send data frames in both direction (_Bi-directional_)
+** No headers, cookies, authentication
+** No security overhead
+** “ping”/”pong” frames for keep-alive
+* Send message independent of each other (_Full Duplex_)
+* End the connection
+
+[.topic.source]
+== Establish a connection
+
+ADD IMAGE HERE
+
+[.topic.source]
+== Handshake Request
+
+GET /chat HTTP/1.1
+_Host_: server.example.com
+_Upgrade_: websocket
+_Connection_: Upgrade
+_Sec-WebSocket-Key_: dGhlIHNhbXBsZSBub25jZQ==
+_Origin_: http://example.com
+_Sec-WebSocket-Protocol_: chat, superchat
+_Sec-WebSocket-Version_: 13
+
+
+[.topic.source]
+== Handshake Response
+
+HTTP/1.1 101 Switching Protocols
+_Upgrade_: websocket
+_Connection_: Upgrade
+_Sec-WebSocket-Accept_: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+_Sec-WebSocket-Protocol_: chat
+
+
+[.topic.source]
+== Establishing a connection
+
+CONNECTED
+
+
+[.topic.source]
+== WebSocket Lifecycle
+
+LIFECYCLE
+
+[.topic.source]
+== WebSocket API
+
+image::javascript-api.png[]
+
+
+[.topic.source]
+== Browser Support
+
+image:websocket-browser-support.png[]
+
+[.topic.source]
+== REST vs WebSocket
+
+IMAGE
+
+
+[.topic.source]
+== REST vs WebSocket
+
+IMAGE
+
+
+[.topic.source]
+== JSR 356 Specification
+
+* Standard Java API for creating WebSocket Applications
+* Transparent Expert Group
+** http://jcp.org/en/jsr/detail?id=356
+** http://java.net/projects/websocket-spec
+* Included in Java EE 7
+
+
+[.topic.source]
+== JSR 356 Compliant Implementations
+
+image:glassfish-logo.png[] image:wildfly-logo.png[] image:atmosphere-logo.png[]
+image:tomcat-logo.png[] image:jetty-logo.png[] image:caucho-logo.jpg[]
+
+* GlassFish 4 (RI), WildFly 8, Atmosphere, Tomcat 7.0.x/8.0.x, Jetty 9.1.x, Caucho Resin
+
+
+[.topic.source]
+== Java API for WebSocket Features
+
+* API for WebSocket Server and Client Endpoint
+** Annotated: `@ServerEndpoint`, `@ClientEndpoint`
+** Programmatic: `Endpoint`
+*** WebSocket opening handshake negotiation
+* LIfecycle callback methods
+* Integration with Java EE technologies
+
+[.topic.source]
+== WebSocket Annotated Endpoint
+
+[source,java]
+--
+import javax.websocket.*;
+
+@ServerEndpoint("/hello")
+public class HelloBean {
+  @OnMessage
+  public String sayHello(String name) {
+    return "Hello " + name;
+}
+--
+
+[.topic.source]
+==
+
+[.topic.source]
+==
+
+[.topic.source]
+==
+
+[.topic.source]
+==
+
+[.topic.source]
+==
+
+[.topic.source]
+==
+
+[.topic.source]
+==
+
+[.topic.source]
+==
+
+
+[.topic.source]
+== References
+
+NOTE: Java EE 7 samples - https://github.com/javaee-samples/javaee7-samples
+
+NOTE: WildFly 8 - http://wildfly.org, http://github.com/wildfly, @WildFlyAS
+
+NOTE: Undertow - http://undertow.io
+
+NOTE: Slides generated with Asciidoctor and DZSlides backend
+
+NOTE: Original slide template - Dan Allen & Sarah White
+
+[.topic.ending, hrole="name"]
+== Arun Gupta
+
+[.footer]
+[icon-twitter]'{zwsp}' @arungupta
+

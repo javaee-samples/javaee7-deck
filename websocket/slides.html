@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="en" class="aspect-16-9"><head><meta charset="UTF-8" /><meta name="generator" content="Asciidoctor 1.5.0.preview.1, dzslides backend" /><title>Java API for WebSocket</title><meta name="author" content="Arun Gupta" /><link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton:400,700,800,400italic|Cedarville+Cursive" /><link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/3.2.1/css/font-awesome.min.css" /><link rel="stylesheet" href="./dzslides/themes/highlight/asciidoctor.css" /><link rel="stylesheet" href="./dzslides/themes/style/asciidoctor.css" /><style>section:not(.topic) > h2 { display: none;}</style><link rel="stylesheet" href="./dzslides/core/dzslides.css" /><link rel="stylesheet" href="./dzslides/themes/transition/fade.css" /></head><body><section class="title"><h1>Java API for WebSocket</h1><footer><span class="author">Arun Gupta</span><span class="divider">&nbsp;&middot;&nbsp;</span><span class="author">Red Hat</span><span class="divider">&nbsp;&middot;&nbsp;</span><span class="author">@arungupta</span></footer></section><section class="topic source"><h2>Arun Gupta</h2><div class="exampleblock"><div class="content"><ul><li>Director, Developer Advocacy, Red Hat Inc.</li><li>O&#8217;Reilly and McGraw Hill author</li><li>Fitness freak</li></ul></div></div>
+<details><details open=""><summary>Notes</summary><ul><li>My name is Arun Gupta, and I drive community engagement efforts for JBoss at Red Hat</li><li>I&#8217;ve authored couple of O&#8217;Reilly best selling books and another one by McGraw Hill</li><li>I&#8217;m a workout nut as my kids call me and a runner</li></ul></details></details></section>
+<section class="topic source"><h2>Agenda</h2><div class="exampleblock"><div class="content"><ul><li>Primer on WebSocket</li><li><em>JSR 356</em>: Java API for WebSocket 1.0</li></ul></div></div></section>
+<section class="topic source"><h2>Interactive Web Sites</h2><ul class="incremental"><li>HTTP is half-duplex</li><li>HTTP is verbose</li><li>Hacks for Server Push<ul><li>Polling</li><li>Long Polling</li><li>Comet/Ajax</li><li>Complex, Inefficient, Wasteful</li></ul></li></ul>
+<details><details open=""><summary>Notes</summary><p>Historically, creating web applications that need bidirectional communication between a client and a server (e.g., instant messaging and gaming applications) has required an abuse of HTTP to poll the server for updates while sending upstream notifications as distinct HTTP calls. This results in a variety of problems:</p>
+<ul><li>The server is forced to use a number of different underlying TCP connections for each client: one for sending information to the client and a new one for each incoming message.</li><li>The wire protocol has a high overhead, with each client-to-server message having an HTTP header.</li><li>The client-side script is forced to maintain a mapping from the outgoing connections to the incoming connection to track replies.</li></ul>
+<p>A simpler solution would be to use a single TCP connection for traffic in both directions.  This is what the WebSocket Protocol provides.  Combined with the WebSocket API, it provides an alternative to HTTP polling for two-way communication from a web page to a remote server. The same technique can be used for a variety of web applications: games, stock tickers, multiuser applications with simultaneous editing, user interfaces exposing server-side services in real time, etc.</p>
+<ul><li>The WebSocket Protocol is designed to supersede existing bidirectional communication technologies that use HTTP as a transport layer to benefit from existing infrastructure (proxies, filtering, authentication).  Such technologies were implemented as trade-offs between efficiency and reliability because HTTP was not initially meant to be used for bidirectional communication (see [RFC6202] for further discussion).  The WebSocket Protocol attempts to address the goals of existing bidirectional HTTP technologies in the context of the existing HTTP infrastructure; as such, it is designed to work over HTTP ports 80 and 443 as well as to support HTTP proxies and intermediaries, even if this implies some complexity specific to the current environment.</li><li>The WebSocket Protocol attempts to address the goals of existing bidirectional HTTP technologies in the context of the existing HTTP infrastructure; as such, it is designed to work over HTTP ports 80 and 443 as well as to support HTTP proxies and intermediaries, even if this implies some complexity specific to the current environment. However, the design does not limit WebSocket to HTTP, and future implementations could use a simpler handshake over a dedicated port without reinventing the entire protocol. This last point is important because the traffic patterns of interactive messaging do not closely match standard HTTP traffic and can induce unusual loads on some components.</li></ul></details></details></section>
+<section class="topic source"><h2>WebSocket to the rescue</h2><ul><li>TCP based, bi-directional, full-duplex messaging</li><li>Originally proposed as part of HTML5</li><li>IETF-defined <em>Protocol</em>: RFC 6455<ul><li>Handshake</li><li>Data Transfer</li></ul></li><li>W3C defined <em>JavaScript API</em><ul><li>Candidate Recommendation</li></ul></li></ul></section>
+<section class="topic source"><h2>What&#8217;s the basic idea ?</h2><ul class="incremental"><li>Upgrade HTTP to WebSocket (<em>single TCP connection</em>)<ul><li>Transparent to proxies, firewalls, and routers</li></ul></li><li>Send data frames in both direction (<em>Bi-directional</em>)<ul><li>No headers, cookies, authentication</li><li>No security overhead</li><li>“ping”/”pong” frames for keep-alive</li></ul></li><li>Send message independent of each other (<em>Full Duplex</em>)</li><li>End the connection</li></ul></section>
+<section class="topic source"><h2>Establish a connection</h2><p>ADD IMAGE HERE</p></section>
+<section class="topic source"><h2>Handshake Request</h2><p>GET /chat HTTP/1.1
+<em>Host</em>: server.example.com
+<em>Upgrade</em>: websocket
+<em>Connection</em>: Upgrade
+<em>Sec-WebSocket-Key</em>: dGhlIHNhbXBsZSBub25jZQ==
+<em>Origin</em>: <a href="http://example.com">http://example.com</a>
+<em>Sec-WebSocket-Protocol</em>: chat, superchat
+<em>Sec-WebSocket-Version</em>: 13</p></section>
+<section class="topic source"><h2>Handshake Response</h2><p>HTTP/1.1 101 Switching Protocols
+<em>Upgrade</em>: websocket
+<em>Connection</em>: Upgrade
+<em>Sec-WebSocket-Accept</em>: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+<em>Sec-WebSocket-Protocol</em>: chat</p></section>
+<section class="topic source"><h2>Establishing a connection</h2><p>CONNECTED</p></section>
+<section class="topic source"><h2>WebSocket Lifecycle</h2><p>LIFECYCLE</p></section>
+<section class="topic source"><h2>WebSocket API</h2><img src="images/javascript-api.png" alt="javascript api" /></section>
+<section class="topic source"><h2>Browser Support</h2><p><span class="image"><img src="images/websocket-browser-support.png" alt="websocket-browser-support" /></span></p></section>
+<section class="topic source"><h2>REST vs WebSocket</h2><p>IMAGE</p></section>
+<section class="topic source"><h2>REST vs WebSocket</h2><p>IMAGE</p></section>
+<section class="topic source"><h2>JSR 356 Specification</h2><ul><li>Standard Java API for creating WebSocket Applications</li><li>Transparent Expert Group<ul><li><a href="http://jcp.org/en/jsr/detail?id=356">http://jcp.org/en/jsr/detail?id=356</a></li><li><a href="http://java.net/projects/websocket-spec">http://java.net/projects/websocket-spec</a></li></ul></li><li>Included in Java EE 7</li></ul></section>
+<section class="topic source"><h2>JSR 356 Compliant Implementations</h2><p><span class="image"><img src="images/glassfish-logo.png" alt="glassfish-logo" /></span> <span class="image"><img src="images/wildfly-logo.png" alt="wildfly-logo" /></span> <span class="image"><img src="images/atmosphere-logo.png" alt="atmosphere-logo" /></span>
+<span class="image"><img src="images/tomcat-logo.png" alt="tomcat-logo" /></span> <span class="image"><img src="images/jetty-logo.png" alt="jetty-logo" /></span> <span class="image"><img src="images/caucho-logo.jpg" alt="caucho-logo" /></span></p>
+<ul><li>GlassFish 4 (RI), WildFly 8, Atmosphere, Tomcat 7.0.x/8.0.x, Jetty 9.1.x, Caucho Resin</li></ul></section>
+<section class="topic source"><h2>Java API for WebSocket Features</h2><ul><li>API for WebSocket Server and Client Endpoint<ul><li>Annotated: <code>@ServerEndpoint</code>, <code>@ClientEndpoint</code></li><li>Programmatic: <code>Endpoint</code><ul><li>WebSocket opening handshake negotiation</li></ul></li></ul></li><li>LIfecycle callback methods</li><li>Integration with Java EE technologies</li></ul></section>
+<section class="topic source"><h2>WebSocket Annotated Endpoint</h2><div class="listingblock"><pre class="highlight"><code class="java">import javax.websocket.*;
+
+@ServerEndpoint("/hello")
+public class HelloBean {
+  @OnMessage
+  public String sayHello(String name) {
+    return "Hello " + name;
+}</code></pre></div>
+<p class="topic source">==</p>
+<p class="topic source">==</p>
+<p class="topic source">==</p>
+<p class="topic source">==</p>
+<p class="topic source">==</p>
+<p class="topic source">==</p>
+<p class="topic source">==</p>
+<p class="topic source">==</p></section>
+<section class="topic source"><h2>References</h2><div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">Java EE 7 samples - <a href="https://github.com/javaee-samples/javaee7-samples">https://github.com/javaee-samples/javaee7-samples</a></td></tr></table></div>
+<div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">WildFly 8 - <a href="http://wildfly.org">http://wildfly.org</a>, <a href="http://github.com/wildfly">http://github.com/wildfly</a>, @WildFlyAS</td></tr></table></div>
+<div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">Undertow - <a href="http://undertow.io">http://undertow.io</a></td></tr></table></div>
+<div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">Slides generated with Asciidoctor and DZSlides backend</td></tr></table></div>
+<div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">Original slide template - Dan Allen &amp; Sarah White</td></tr></table></div></section>
+<section class="topic ending"><h2 class="name">Arun Gupta</h2><p class="footer"><em class="icon-twitter">&#8203;</em> @arungupta</p></section><script src="./dzslides/core/dzslides.js"></script><script src="./dzslides/highlight/highlight.pack.js"></script><script>hljs.initHighlightingOnLoad()</script></body></html>

@@ -1,0 +1,67 @@
+doctype 5
+/ This should really be a media query in the css
+html lang=(attr :lang, 'en' unless attr? :nolang) class="aspect-#{attr 'dzslides-aspect', '4-3'}"
+  head
+    meta charset=(attr :encoding)
+    meta name='generator' content="Asciidoctor #{attr 'asciidoctor-version'}, dzslides backend"
+    title=((doctitle :sanitize => true) || (attr 'untitled-label'))
+    - {:description => 'description', :author => 'author', :copyright => 'copyright',
+       :revdate => 'presdate', :corpname => 'company'}.each do |key, name|
+      - if attr? key
+        meta name=name content=(attr key)
+    link rel='stylesheet' href="http://fonts.googleapis.com/css?#{attr 'dzslides-fonts', 'family=Oswald'}"
+    - if attr? :icons, 'font'
+      - if !(attr 'iconfont-remote', '').nil?
+        link rel='stylesheet' href=(attr 'iconfont-cdn', 'http://cdnjs.cloudflare.com/ajax/libs/font-awesome/3.2.1/css/font-awesome.min.css')
+      - else
+        link rel='stylesheet' href=normalize_web_path("#{attr 'iconfont-name', 'font-awesome'}.css", (attr :stylesdir, ''))
+    - if attr? 'source-highlighter'
+      link rel='stylesheet' href="./dzslides/themes/highlight/#{attr 'dzslides-highlight', 'default'}.css"
+    link rel='stylesheet' href="./dzslides/themes/style/#{attr 'dzslides-style', 'default'}.css"
+    /FIXME move this CSS into stylesheet
+    style
+      |section:not(.topic) > h2 {
+      |  display: none;
+      |}
+    /bug in full screen image if include dzslides.css before ours
+    link rel='stylesheet' href='./dzslides/core/dzslides.css'
+    link rel='stylesheet' href="./dzslides/themes/transition/#{attr 'dzslides-transition', 'horizontal-slide'}.css" 
+    - if attr? 'math'
+      script type='text/x-mathjax-config'
+        |MathJax.Hub.Config({
+           tex2jax: {
+             inlineMath: [['\\(','\\)']],
+             displayMath: [['\\[','\\]']],
+             ignoreClass: 'nomath|nolatexmath'
+           },
+           asciimath2jax: {
+             delimiters: [['\\$','\\$']],
+             ignoreClass: 'nomath|noasciimath'
+           }
+         });
+      script type='text/javascript' src='http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML'
+      script type='text/javascript'
+        |document.addEventListener('DOMContentLoaded', MathJax.Hub.TypeSet)
+    =docinfo '.html'
+  body id=@id
+    section.title
+      h1=@header.title
+      footer
+        span.author #{attr :author}#{(attr :corpname) && " - #{attr :corpname}"}
+        - if attr? :email
+          '
+          span.email =sub_macros(attr :email)
+        - if (authorcount = (attr :authorcount).to_i) > 1
+          - (2..authorcount).each do |idx|
+            span.divider &nbsp;&middot;&nbsp;
+            span.author =(attr "author_#{idx}")
+            - if attr? "email_#{idx}"
+              '
+              span.email =sub_macros(attr "email_#{idx}")
+        - if attr? :hashtag 
+          span.hashtag=(attr :hashtag)
+    =content
+    script src='./dzslides/core/dzslides.js' 
+    - if attr? 'dzslides-highlight'
+      script src='./dzslides/highlight/highlight.pack.js'
+      script hljs.initHighlightingOnLoad()
