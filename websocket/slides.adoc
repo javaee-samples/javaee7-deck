@@ -152,17 +152,18 @@ IMAGE
 
 
 [.topic.source]
-== JSR 356 Compliant Implementations
+== JSR 356 Implementations
 
 image:glassfish-logo.png[] image:wildfly-logo.png[] image:atmosphere-logo.png[]
 image:tomcat-logo.png[] image:jetty-logo.png[] image:caucho-logo.jpg[]
 
-* GlassFish 4 (RI), WildFly 8, Atmosphere, Tomcat 7.0.x/8.0.x, Jetty 9.1.x, Caucho Resin
+GlassFish 4 (RI), WildFly 8, Atmosphere, Tomcat 7.0.x/8.0.x, Jetty 9.1.x, Caucho Resin
 
 
 [.topic.source]
 == Java API for WebSocket Features
 
+[.incremental]
 * API for WebSocket Server and Client Endpoint
 ** Annotated: `@ServerEndpoint`, `@ClientEndpoint`
 ** Programmatic: `Endpoint`
@@ -177,37 +178,310 @@ image:tomcat-logo.png[] image:jetty-logo.png[] image:caucho-logo.jpg[]
 --
 import javax.websocket.*;
 
-@ServerEndpoint("/hello")
+@ServerEndpoint("/hello") <1>
 public class HelloBean {
-  @OnMessage
+  @OnMessage <2>
   public String sayHello(String name) {
     return "Hello " + name;
 }
 --
+<1> `@ServerEndpoint` marks the POJO as WebSocket endpoint
+<2> `@OnMessage` marks the method called when WebSocket message is received
 
 [.topic.source]
-==
+== WebSocket annotations
+
+[.incremental]
+* Class-level annotations
+** `@ServerEndpoint` Turns a POJO in a server endpoint
+** `@ClientEndpoint` Turns a POJO in a client endpoint
+* Method-level annotations
+** `@OnMessage` Intercepts WebSocket message events
+** `@OnOpen`  Intercepts WebSocket open events
+** `@OnClose`  Intercepts WebSocket close events
+** `@OnError`  Intercepts WebSocket error events
+* Parameter-level annotation
+** `@PathParam`  Matches path segment of a URI-template
 
 [.topic.source]
-==
+== @ServerEndpoint attributes
+
+* `value` Relative URI or URI template e.g. `/hello' or `/chat/{subscriber-level}'
+* `decoders` list of message decoder classnames
+* `encoders` list of message encoder classnames
+* `subprotocols` list of the names of the supported subprotocols
 
 [.topic.source]
-==
+== Custom Payloads
+
+[source,java]
+--
+@ServerEndpoint(
+  value="/hello",
+  decoders={MyMessageDecoder.class}, <1>
+  encoders={MyMessageEncoder.class} <2>
+)
+public class MyEndpoint {
+  . . .
+}
+--
+<1> Message decoder class
+<2> Message encoder class
 
 [.topic.source]
-==
+== Custom payloads: Text decoder
+
+[source,java]
+--
+public class MyMessageDecoder implements Decoder.Text<MyMessage> { <1>
+  public MyMessage decode(String s) { <2>
+    JsonObject jsonObject = Json.createReader("...").readObject();
+    return new MyMessage(jsonObject);
+  }
+
+  public boolean willDecode(String string) { <3>
+    . . .
+    return true;
+  }
+  . . .
+}
+--
+<1> Text decoder
+<2> `decode` decodes a `String` to `MyMessage`
+<3> Returns `true` if payload can be processed
 
 [.topic.source]
-==
+== Custom payloads: Text encoder
+
+[source,java]
+--
+public class MyMessageEncoder implements Encoder.Text<MyMessage> { <1>
+  public String encode(MyMessage myMessage) { <2>
+    return myMessage.jsonObject.toString();
+  }
+  . . .
+}
+--
+<1> Text encoder
+<2> `encode` encodes a `MyMessage` to `String`
 
 [.topic.source]
-==
+== Custom payloads: Binary encoder
+
+[source,java]
+--
+public class MyMessageDecoder implements Decoder.Binary<MyMessage> { <1>
+  public MyMessage decode(byte[] bytes) { <2>
+    . . .
+    return myMessage;
+  }
+
+  public boolean willDecode(byte[] bytes) { <3>
+    . . .
+    return true;
+  }
+  . . .
+}
+--
+<1> Binary decoder
+<2> `decode` decodes a `byte[]` to `MyMessage`
+<3> Returns `true` if payload can be processed
 
 [.topic.source]
-==
+== @OnMessage method signature
+
+[.incremental]
+* Exactly one of the following
+** _Text_: String, Java primitive or equivalent class, String and boolean, Reader, any type for which there is a decoder
+** _Binary_: byte[], ByteBuffer, byte[] and boolean, ByteBuffer and boolean, InptuStream, any type for which there is a decoder
+** _Pong messages_: PongMessage
+* An optional `Session` parameter
+* 0..n String parameters annotated with `@PathParam`
+* _Return type_: String, byte[], ByteBuffer, Java primitive or class equivalent or any type for which there is a encoder
+
 
 [.topic.source]
-==
+== Sample Messages
+
+[.incremental]
+* `void m(String s);`
+* `void m(Float f, @PathParam(“id”)int id);`
+* `Product m(Reader reader, Session s);`
+* `void m(byte[] b); or void m(ByteBuffer b);`
+* `Book m(int i, Session s, @PathParam(“isbn”)String isbn, @PathParam(“store”)String store);`
+
+[.topic.source]
+== Chat server
+
+[source,java]
+--
+@ServerEndpoint("/chat")
+public class ChatBean {
+  static Set<Session> peers = Collections.synchronizedSet("...");
+
+  @OnOpen
+  public void onOpen(Session peer) {
+    peers.add(peer);
+  }
+
+  @OnClose
+  public void onClose(Session peer) {
+    peers.remove(peer);
+  }
+  . . .
+--
+
+[.topic.source]
+== Chat server (contd)
+
+[source,java]
+--
+  . . .
+  @OnMessage
+  public void message(String message, Session client) {
+    for (Session peer : peers) {
+      peer.getBasicRemote().sendObject(message);
+    }
+  }
+}
+--
+
+[.topic.source]
+== Chat server (simplified)
+
+[source,java]
+--
+@ServerEndpoint("/chat")
+public class ChatBean {
+  @OnMessage
+  public void message(String message, Session endpoint) {
+    for (Session peer : endpoint.getOpenSessions()) {
+      peer.getBasicRemote().sendObject(message);
+    }
+  }
+}
+--
+
+
+[.topic.source]
+== URI-template matching
+
+[source,java]
+--
+@ServerEndpoint(“/orders/{order-id}”)
+public class MyEndpoint {
+  @OnMessage public void processOrder(@PathParam(“order-id”)String orderId) {
+    . . .
+  }
+}
+--
+
+
+[.topic.source]
+== Client endpoint
+
+[source,java]
+--
+@ClientEndpoint
+public class HelloClient {
+  @OnMessage public void message(String message, Session session) {
+    <1>
+  }
+}
+
+WebSocketContainer c = ContainerProvider.getWebSocketContainer();
+c.connectToServer(HelloClient.class, "hello"); <2>
+--
+<1> process message from server
+<2> connect to server
+
+
+[.topic.source]
+== Programmatic endpoint
+
+[source,java]
+--
+public class MyEndpoint extends Endpoint { <1>
+  @Override
+  public void onOpen(Session session) {
+    session.addMessageHandler(new MessageHandler.Text() { <2>
+      public void onMessage(String name) { <3>
+        try {
+          session.getBasicRemote().sendText("Hello " + name); <4>
+        } catch (IOException ex) { }
+      }
+    });
+  }
+}
+--
+<1> Extend an abstract class `Endpoint`
+<2> Add handler for each message
+<3> Handle the text message
+<4> Send the message to client
+
+[.topic.source]
+== Programmatic endpoint packaging
+
+[source,java]
+--
+ServerEndpointConfiguration config =
+  ServerEndpointConfigurationBuilder.create(MyEndpoint.class, "/foo")
+    .build();
+--
+
+[.topic.source]
+== Server and client configuration
+
+[.incremental]
+* Server
+** URI matching algorithm
+** Subprotocol and extension negotiation
+** Message encoders and decoders
+** Origin check
+** Handshake response
+* Client
+** Requested subprotocols and extensions
+** Message encoders and decoders
+** Request URI
+
+[.topic.source]
+== Relationship with Dependency Injection
+
+* Full Dependency Injection support required in endpoints
+** Field, method, constructor injection
+* Interceptors permitted too
+
+[.topic.source]
+== Relationship with Servlet 3.1
+
+* Allows a portable way to upgrade HTTP request
+* New API
+** `HttpServletRequest.upgrade(ProtocolHandler handler)`
+
+
+[.topic.source]
+== Security
+
+* Authenticates using Servlet security mechanism during opening handshake
+** Endpoint mapped by _ws://_ is protected using security model defined using the corresponding http:// URI
+* Authorization defined using `<security-constraint>`
+* Transport Confidentiality using _wss://_
+** Access allowed over encrypted connection only
+
+
+[.topic.source]
+== Debugging WebSocket messages (Wireshark)
+
+image::wireshark-dump.png[]
+
+
+[.topic.source]
+== References
+
+
+[.topic.source]
+== References
+
 
 
 [.topic.source]

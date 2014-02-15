@@ -29,26 +29,135 @@
 <section class="topic source"><h2>REST vs WebSocket</h2><p>IMAGE</p></section>
 <section class="topic source"><h2>REST vs WebSocket</h2><p>IMAGE</p></section>
 <section class="topic source"><h2>JSR 356 Specification</h2><ul><li>Standard Java API for creating WebSocket Applications</li><li>Transparent Expert Group<ul><li><a href="http://jcp.org/en/jsr/detail?id=356">http://jcp.org/en/jsr/detail?id=356</a></li><li><a href="http://java.net/projects/websocket-spec">http://java.net/projects/websocket-spec</a></li></ul></li><li>Included in Java EE 7</li></ul></section>
-<section class="topic source"><h2>JSR 356 Compliant Implementations</h2><p><span class="image"><img src="images/glassfish-logo.png" alt="glassfish-logo" /></span> <span class="image"><img src="images/wildfly-logo.png" alt="wildfly-logo" /></span> <span class="image"><img src="images/atmosphere-logo.png" alt="atmosphere-logo" /></span>
+<section class="topic source"><h2>JSR 356 Implementations</h2><p><span class="image"><img src="images/glassfish-logo.png" alt="glassfish-logo" /></span> <span class="image"><img src="images/wildfly-logo.png" alt="wildfly-logo" /></span> <span class="image"><img src="images/atmosphere-logo.png" alt="atmosphere-logo" /></span>
 <span class="image"><img src="images/tomcat-logo.png" alt="tomcat-logo" /></span> <span class="image"><img src="images/jetty-logo.png" alt="jetty-logo" /></span> <span class="image"><img src="images/caucho-logo.jpg" alt="caucho-logo" /></span></p>
-<ul><li>GlassFish 4 (RI), WildFly 8, Atmosphere, Tomcat 7.0.x/8.0.x, Jetty 9.1.x, Caucho Resin</li></ul></section>
-<section class="topic source"><h2>Java API for WebSocket Features</h2><ul><li>API for WebSocket Server and Client Endpoint<ul><li>Annotated: <code>@ServerEndpoint</code>, <code>@ClientEndpoint</code></li><li>Programmatic: <code>Endpoint</code><ul><li>WebSocket opening handshake negotiation</li></ul></li></ul></li><li>LIfecycle callback methods</li><li>Integration with Java EE technologies</li></ul></section>
+<p>GlassFish 4 (RI), WildFly 8, Atmosphere, Tomcat 7.0.x/8.0.x, Jetty 9.1.x, Caucho Resin</p></section>
+<section class="topic source"><h2>Java API for WebSocket Features</h2><ul class="incremental"><li>API for WebSocket Server and Client Endpoint<ul><li>Annotated: <code>@ServerEndpoint</code>, <code>@ClientEndpoint</code></li><li>Programmatic: <code>Endpoint</code><ul><li>WebSocket opening handshake negotiation</li></ul></li></ul></li><li>LIfecycle callback methods</li><li>Integration with Java EE technologies</li></ul></section>
 <section class="topic source"><h2>WebSocket Annotated Endpoint</h2><div class="listingblock"><pre class="highlight"><code class="java">import javax.websocket.*;
 
-@ServerEndpoint("/hello")
+@ServerEndpoint("/hello") <i class="conum" data-value="1"></i><b>(1)</b>
 public class HelloBean {
-  @OnMessage
+  @OnMessage <i class="conum" data-value="2"></i><b>(2)</b>
   public String sayHello(String name) {
     return "Hello " + name;
 }</code></pre></div>
-<p class="topic source">==</p>
-<p class="topic source">==</p>
-<p class="topic source">==</p>
-<p class="topic source">==</p>
-<p class="topic source">==</p>
-<p class="topic source">==</p>
-<p class="topic source">==</p>
-<p class="topic source">==</p></section>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td><code>@ServerEndpoint</code> marks the POJO as WebSocket endpoint</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td><code>@OnMessage</code> marks the method called when WebSocket message is received</td></tr></table></div></section>
+<section class="topic source"><h2>WebSocket annotations</h2><ul class="incremental"><li>Class-level annotations<ul><li><code>@ServerEndpoint</code> Turns a POJO in a server endpoint</li><li><code>@ClientEndpoint</code> Turns a POJO in a client endpoint</li></ul></li><li>Method-level annotations<ul><li><code>@OnMessage</code> Intercepts WebSocket message events</li><li><code>@OnOpen</code>  Intercepts WebSocket open events</li><li><code>@OnClose</code>  Intercepts WebSocket close events</li><li><code>@OnError</code>  Intercepts WebSocket error events</li></ul></li><li>Parameter-level annotation<ul><li><code>@PathParam</code>  Matches path segment of a URI-template</li></ul></li></ul></section>
+<section class="topic source"><h2>@ServerEndpoint attributes</h2><ul><li><code>value</code> Relative URI or URI template e.g. &#8216;/hello&#8217; or &#8216;/chat/{subscriber-level}&#8217;</li><li><code>decoders</code> list of message decoder classnames</li><li><code>encoders</code> list of message encoder classnames</li><li><code>subprotocols</code> list of the names of the supported subprotocols</li></ul></section>
+<section class="topic source"><h2>Custom Payloads</h2><div class="listingblock"><pre class="highlight"><code class="java">@ServerEndpoint(
+  value="/hello",
+  decoders={MyMessageDecoder.class}, <i class="conum" data-value="1"></i><b>(1)</b>
+  encoders={MyMessageEncoder.class} <i class="conum" data-value="2"></i><b>(2)</b>
+)
+public class MyEndpoint {
+  . . .
+}</code></pre></div>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Message decoder class</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>Message encoder class</td></tr></table></div></section>
+<section class="topic source"><h2>Custom payloads: Text decoder</h2><div class="listingblock"><pre class="highlight"><code class="java">public class MyMessageDecoder implements Decoder.Text&lt;MyMessage&gt; { <i class="conum" data-value="1"></i><b>(1)</b>
+  public MyMessage decode(String s) { <i class="conum" data-value="2"></i><b>(2)</b>
+    JsonObject jsonObject = Json.createReader("...").readObject();
+    return new MyMessage(jsonObject);
+  }
+
+  public boolean willDecode(String string) { <i class="conum" data-value="3"></i><b>(3)</b>
+    . . .
+    return true;
+  }
+  . . .
+}</code></pre></div>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Text decoder</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td><code>decode</code> decodes a <code>String</code> to <code>MyMessage</code></td></tr><tr><td><i class="conum" data-value="3"></i><b>3</b></td><td>Returns <code>true</code> if payload can be processed</td></tr></table></div></section>
+<section class="topic source"><h2>Custom payloads: Text encoder</h2><div class="listingblock"><pre class="highlight"><code class="java">public class MyMessageEncoder implements Encoder.Text&lt;MyMessage&gt; { <i class="conum" data-value="1"></i><b>(1)</b>
+  public String encode(MyMessage myMessage) { <i class="conum" data-value="2"></i><b>(2)</b>
+    return myMessage.jsonObject.toString();
+  }
+  . . .
+}</code></pre></div>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Text encoder</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td><code>encode</code> encodes a <code>MyMessage</code> to <code>String</code></td></tr></table></div></section>
+<section class="topic source"><h2>Custom payloads: Binary encoder</h2><div class="listingblock"><pre class="highlight"><code class="java">public class MyMessageDecoder implements Decoder.Binary&lt;MyMessage&gt; { <i class="conum" data-value="1"></i><b>(1)</b>
+  public MyMessage decode(byte[] bytes) { <i class="conum" data-value="2"></i><b>(2)</b>
+    . . .
+    return myMessage;
+  }
+
+  public boolean willDecode(byte[] bytes) { <i class="conum" data-value="3"></i><b>(3)</b>
+    . . .
+    return true;
+  }
+  . . .
+}</code></pre></div>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Binary decoder</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td><code>decode</code> decodes a <code>byte[]</code> to <code>MyMessage</code></td></tr><tr><td><i class="conum" data-value="3"></i><b>3</b></td><td>Returns <code>true</code> if payload can be processed</td></tr></table></div></section>
+<section class="topic source"><h2>@OnMessage method signature</h2><ul class="incremental"><li>Exactly one of the following<ul><li><em>Text</em>: String, Java primitive or equivalent class, String and boolean, Reader, any type for which there is a decoder</li><li><em>Binary</em>: byte[], ByteBuffer, byte[] and boolean, ByteBuffer and boolean, InptuStream, any type for which there is a decoder</li><li><em>Pong messages</em>: PongMessage</li></ul></li><li>An optional <code>Session</code> parameter</li><li>0..n String parameters annotated with <code>@PathParam</code></li><li><em>Return type</em>: String, byte[], ByteBuffer, Java primitive or class equivalent or any type for which there is a encoder</li></ul></section>
+<section class="topic source"><h2>Sample Messages</h2><ul class="incremental"><li><code>void m(String s);</code></li><li><code>void m(Float f, @PathParam(“id”)int id);</code></li><li><code>Product m(Reader reader, Session s);</code></li><li><code>void m(byte[] b); or void m(ByteBuffer b);</code></li><li><code>Book m(int i, Session s, @PathParam(“isbn”)String isbn, @PathParam(“store”)String store);</code></li></ul></section>
+<section class="topic source"><h2>Chat server</h2><div class="listingblock"><pre class="highlight"><code class="java">@ServerEndpoint("/chat")
+public class ChatBean {
+  static Set&lt;Session&gt; peers = Collections.synchronizedSet("...");
+
+  @OnOpen
+  public void onOpen(Session peer) {
+    peers.add(peer);
+  }
+
+  @OnClose
+  public void onClose(Session peer) {
+    peers.remove(peer);
+  }
+  . . .</code></pre></div></section>
+<section class="topic source"><h2>Chat server (contd)</h2><div class="listingblock"><pre class="highlight"><code class="java">  . . .
+  @OnMessage
+  public void message(String message, Session client) {
+    for (Session peer : peers) {
+      peer.getBasicRemote().sendObject(message);
+    }
+  }
+}</code></pre></div></section>
+<section class="topic source"><h2>Chat server (simplified)</h2><div class="listingblock"><pre class="highlight"><code class="java">@ServerEndpoint("/chat")
+public class ChatBean {
+  @OnMessage
+  public void message(String message, Session endpoint) {
+    for (Session peer : endpoint.getOpenSessions()) {
+      peer.getBasicRemote().sendObject(message);
+    }
+  }
+}</code></pre></div></section>
+<section class="topic source"><h2>URI-template matching</h2><div class="listingblock"><pre class="highlight"><code class="java">@ServerEndpoint(“/orders/{order-id}”)
+public class MyEndpoint {
+  @OnMessage public void processOrder(@PathParam(“order-id”)String orderId) {
+    . . .
+  }
+}</code></pre></div></section>
+<section class="topic source"><h2>Client endpoint</h2><div class="listingblock"><pre class="highlight"><code class="java">@ClientEndpoint
+public class HelloClient {
+  @OnMessage public void message(String message, Session session) {
+    <i class="conum" data-value="1"></i><b>(1)</b>
+  }
+}
+
+WebSocketContainer c = ContainerProvider.getWebSocketContainer();
+c.connectToServer(HelloClient.class, "hello"); <i class="conum" data-value="2"></i><b>(2)</b></code></pre></div>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>process message from server</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>connect to server</td></tr></table></div></section>
+<section class="topic source"><h2>Programmatic endpoint</h2><div class="listingblock"><pre class="highlight"><code class="java">public class MyEndpoint extends Endpoint { <i class="conum" data-value="1"></i><b>(1)</b>
+  @Override
+  public void onOpen(Session session) {
+    session.addMessageHandler(new MessageHandler.Text() { <i class="conum" data-value="2"></i><b>(2)</b>
+      public void onMessage(String name) { <i class="conum" data-value="3"></i><b>(3)</b>
+        try {
+          session.getBasicRemote().sendText("Hello " + name); <i class="conum" data-value="4"></i><b>(4)</b>
+        } catch (IOException ex) { }
+      }
+    });
+  }
+}</code></pre></div>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Extend an abstract class <code>Endpoint</code></td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>Add handler for each message</td></tr><tr><td><i class="conum" data-value="3"></i><b>3</b></td><td>Handle the message</td></tr><tr><td><i class="conum" data-value="4"></i><b>4</b></td><td>Send the message to client</td></tr></table></div></section>
+<section class="topic source"><h2>Programmatic endpoint packaging</h2><div class="listingblock"><pre class="highlight"><code class="java">ServerEndpointConfiguration config =
+  ServerEndpointConfigurationBuilder.create(MyEndpoint.class, "/foo")
+    .build();</code></pre></div></section>
+<section class="topic source"><h2>Server and client configuration</h2><ul class="incremental"><li>Server<ul><li>URI matching algorithm</li><li>Subprotocol and extension negotiation</li><li>Message encoders and decoders</li><li>Origin check</li><li>Handshake response</li></ul></li><li>Client<ul><li>Requested subprotocols and extensions</li><li>Message encoders and decoders</li><li>Request URI</li></ul></li></ul></section>
+<section class="topic source"><h2>Relationship with Dependency Injection</h2><ul><li>Full Dependency Injection support required in endpoints<ul><li>Field, method, constructor injection</li></ul></li><li>Interceptors permitted too</li></ul></section>
+<section class="topic source"><h2>Relationship with Servlet 3.1</h2><ul><li>Allows a portable way to upgrade HTTP request</li><li>New API<ul><li><code>HttpServletRequest.upgrade(ProtocolHandler handler)</code></li></ul></li></ul></section>
+<section class="topic source"><h2>Security</h2><ul><li>Authenticates using Servlet security mechanism during opening handshake<ul><li>Endpoint mapped by <em>ws://</em> is protected using security model defined using the corresponding http:// URI</li></ul></li><li>Authorization defined using <code>&lt;security-constraint&gt;</code></li><li>Transport Confidentiality using <em>wss://</em><ul><li>Access allowed over encrypted connection only</li></ul></li></ul></section>
+<section class="topic source"><h2>Debugging WebSocket messages (Wireshark)</h2><img src="images/wireshark-dump.png" alt="wireshark dump" /></section>
+<section class="topic source"><h2>References</h2></section>
+<section class="topic source"><h2>References</h2></section>
 <section class="topic source"><h2>References</h2><div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">Java EE 7 samples - <a href="https://github.com/javaee-samples/javaee7-samples">https://github.com/javaee-samples/javaee7-samples</a></td></tr></table></div>
 <div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">WildFly 8 - <a href="http://wildfly.org">http://wildfly.org</a>, <a href="http://github.com/wildfly">http://github.com/wildfly</a>, @WildFlyAS</td></tr></table></div>
 <div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">Undertow - <a href="http://undertow.io">http://undertow.io</a></td></tr></table></div>
