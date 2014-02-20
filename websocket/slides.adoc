@@ -58,6 +58,7 @@ A simpler solution would be to use a single TCP connection for traffic in both d
 [.topic.source]
 == WebSocket to the rescue
 
+[.incremental]
 * TCP based, bi-directional, full-duplex messaging
 * Originally proposed as part of HTML5
 * IETF-defined _Protocol_: RFC 6455
@@ -82,41 +83,52 @@ A simpler solution would be to use a single TCP connection for traffic in both d
 [.topic.source]
 == Establish a connection
 
-ADD IMAGE HERE
+image::websocket-handshake.png[]
 
 [.topic.source]
 == Handshake Request
 
+[source]
+--
 GET /chat HTTP/1.1
-_Host_: server.example.com
-_Upgrade_: websocket
-_Connection_: Upgrade
-_Sec-WebSocket-Key_: dGhlIHNhbXBsZSBub25jZQ==
-_Origin_: http://example.com
-_Sec-WebSocket-Protocol_: chat, superchat
-_Sec-WebSocket-Version_: 13
+Host: server.example.com
+Upgrade: websocket <1>
+Connection: Upgrade <2>
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Origin: http://example.com
+Sec-WebSocket-Protocol: chat, superchat
+Sec-WebSocket-Version: 13
+--
+<1> HTTP upgrade header
+<2> Upgrade to WebSocket
 
 
 [.topic.source]
 == Handshake Response
 
+[source]
+--
 HTTP/1.1 101 Switching Protocols
-_Upgrade_: websocket
-_Connection_: Upgrade
-_Sec-WebSocket-Accept_: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
-_Sec-WebSocket-Protocol_: chat
+Upgrade: websocket <1>
+Connection: Upgrade <2>
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo= <3>
+Sec-WebSocket-Protocol: chat
+--
+<1> Server echoes the header
+<2> Server echoes the header, completes the handshake
+<3> Indicates server's acceptance of connection
 
 
 [.topic.source]
-== Establishing a connection
+== Connection established
 
-CONNECTED
+image:websocket-connected.png[]
 
 
 [.topic.source]
 == WebSocket Lifecycle
 
-LIFECYCLE
+image:websocket-lifecycle.png[image:websocket-lifecycle.png[]
 
 [.topic.source]
 == WebSocket API
@@ -319,17 +331,19 @@ public class MyMessageDecoder implements Decoder.Binary<MyMessage> { <1>
 public class ChatBean {
   static Set<Session> peers = Collections.synchronizedSet("...");
 
-  @OnOpen
+  @OnOpen <1>
   public void onOpen(Session peer) {
     peers.add(peer);
   }
 
-  @OnClose
+  @OnClose <2>
   public void onClose(Session peer) {
     peers.remove(peer);
   }
   . . .
 --
+<1> Called when connection is opened
+<2> Called when connection is closed
 
 [.topic.source]
 == Chat server (contd)
@@ -338,13 +352,14 @@ public class ChatBean {
 --
   . . .
   @OnMessage
-  public void message(String message, Session client) {
-    for (Session peer : peers) {
+  public void message(String message) {
+    for (Session peer : peers) { <1>
       peer.getBasicRemote().sendObject(message);
     }
   }
 }
 --
+<1> Iterate over all the connected clients
 
 [.topic.source]
 == Chat server (simplified)
@@ -368,13 +383,15 @@ public class ChatBean {
 
 [source,java]
 --
-@ServerEndpoint(“/orders/{order-id}”)
+@ServerEndpoint("/orders/{order-id}") <1>
 public class MyEndpoint {
-  @OnMessage public void processOrder(@PathParam(“order-id”)String orderId) {
+  @OnMessage public void processOrder(@PathParam(“order-id”)String orderId) { <2>
     . . .
   }
 }
 --
+<1> Template specified as {order-id}
+<2> Value specified using @PathParam
 
 
 [.topic.source]
@@ -476,11 +493,7 @@ image::wireshark-dump.png[]
 
 
 [.topic.source]
-== References
-
-
-[.topic.source]
-== References
+== Embeddable WebSocket using Undertow
 
 
 

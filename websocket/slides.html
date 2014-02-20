@@ -6,24 +6,26 @@
 <ul><li>The server is forced to use a number of different underlying TCP connections for each client: one for sending information to the client and a new one for each incoming message.</li><li>The wire protocol has a high overhead, with each client-to-server message having an HTTP header.</li><li>The client-side script is forced to maintain a mapping from the outgoing connections to the incoming connection to track replies.</li></ul>
 <p>A simpler solution would be to use a single TCP connection for traffic in both directions.  This is what the WebSocket Protocol provides.  Combined with the WebSocket API, it provides an alternative to HTTP polling for two-way communication from a web page to a remote server. The same technique can be used for a variety of web applications: games, stock tickers, multiuser applications with simultaneous editing, user interfaces exposing server-side services in real time, etc.</p>
 <ul><li>The WebSocket Protocol is designed to supersede existing bidirectional communication technologies that use HTTP as a transport layer to benefit from existing infrastructure (proxies, filtering, authentication).  Such technologies were implemented as trade-offs between efficiency and reliability because HTTP was not initially meant to be used for bidirectional communication (see [RFC6202] for further discussion).  The WebSocket Protocol attempts to address the goals of existing bidirectional HTTP technologies in the context of the existing HTTP infrastructure; as such, it is designed to work over HTTP ports 80 and 443 as well as to support HTTP proxies and intermediaries, even if this implies some complexity specific to the current environment.</li><li>The WebSocket Protocol attempts to address the goals of existing bidirectional HTTP technologies in the context of the existing HTTP infrastructure; as such, it is designed to work over HTTP ports 80 and 443 as well as to support HTTP proxies and intermediaries, even if this implies some complexity specific to the current environment. However, the design does not limit WebSocket to HTTP, and future implementations could use a simpler handshake over a dedicated port without reinventing the entire protocol. This last point is important because the traffic patterns of interactive messaging do not closely match standard HTTP traffic and can induce unusual loads on some components.</li></ul></details></details></section>
-<section class="topic source"><h2>WebSocket to the rescue</h2><ul><li>TCP based, bi-directional, full-duplex messaging</li><li>Originally proposed as part of HTML5</li><li>IETF-defined <em>Protocol</em>: RFC 6455<ul><li>Handshake</li><li>Data Transfer</li></ul></li><li>W3C defined <em>JavaScript API</em><ul><li>Candidate Recommendation</li></ul></li></ul></section>
+<section class="topic source"><h2>WebSocket to the rescue</h2><ul class="incremental"><li>TCP based, bi-directional, full-duplex messaging</li><li>Originally proposed as part of HTML5</li><li>IETF-defined <em>Protocol</em>: RFC 6455<ul><li>Handshake</li><li>Data Transfer</li></ul></li><li>W3C defined <em>JavaScript API</em><ul><li>Candidate Recommendation</li></ul></li></ul></section>
 <section class="topic source"><h2>What&#8217;s the basic idea ?</h2><ul class="incremental"><li>Upgrade HTTP to WebSocket (<em>single TCP connection</em>)<ul><li>Transparent to proxies, firewalls, and routers</li></ul></li><li>Send data frames in both direction (<em>Bi-directional</em>)<ul><li>No headers, cookies, authentication</li><li>No security overhead</li><li>“ping”/”pong” frames for keep-alive</li></ul></li><li>Send message independent of each other (<em>Full Duplex</em>)</li><li>End the connection</li></ul></section>
-<section class="topic source"><h2>Establish a connection</h2><p>ADD IMAGE HERE</p></section>
-<section class="topic source"><h2>Handshake Request</h2><p>GET /chat HTTP/1.1
-<em>Host</em>: server.example.com
-<em>Upgrade</em>: websocket
-<em>Connection</em>: Upgrade
-<em>Sec-WebSocket-Key</em>: dGhlIHNhbXBsZSBub25jZQ==
-<em>Origin</em>: <a href="http://example.com">http://example.com</a>
-<em>Sec-WebSocket-Protocol</em>: chat, superchat
-<em>Sec-WebSocket-Version</em>: 13</p></section>
-<section class="topic source"><h2>Handshake Response</h2><p>HTTP/1.1 101 Switching Protocols
-<em>Upgrade</em>: websocket
-<em>Connection</em>: Upgrade
-<em>Sec-WebSocket-Accept</em>: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
-<em>Sec-WebSocket-Protocol</em>: chat</p></section>
-<section class="topic source"><h2>Establishing a connection</h2><p>CONNECTED</p></section>
-<section class="topic source"><h2>WebSocket Lifecycle</h2><p>LIFECYCLE</p></section>
+<section class="topic source"><h2>Establish a connection</h2><img src="images/websocket-handshake.png" alt="websocket handshake" /></section>
+<section class="topic source"><h2>Handshake Request</h2><div class="listingblock"><pre class="highlight"><code class="no-highlight">GET /chat HTTP/1.1
+Host: server.example.com
+Upgrade: websocket <i class="conum" data-value="1"></i><b>(1)</b>
+Connection: Upgrade <i class="conum" data-value="2"></i><b>(2)</b>
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Origin: http://example.com
+Sec-WebSocket-Protocol: chat, superchat
+Sec-WebSocket-Version: 13</code></pre></div>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>HTTP upgrade header</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>Upgrade to WebSocket</td></tr></table></div></section>
+<section class="topic source"><h2>Handshake Response</h2><div class="listingblock"><pre class="highlight"><code class="no-highlight">HTTP/1.1 101 Switching Protocols
+Upgrade: websocket <i class="conum" data-value="1"></i><b>(1)</b>
+Connection: Upgrade <i class="conum" data-value="2"></i><b>(2)</b>
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo= <i class="conum" data-value="3"></i><b>(3)</b>
+Sec-WebSocket-Protocol: chat</code></pre></div>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Server echoes the header</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>Server echoes the header, completes the handshake</td></tr><tr><td><i class="conum" data-value="3"></i><b>3</b></td><td>Indicates server&#8217;s acceptance of connection</td></tr></table></div></section>
+<section class="topic source"><h2>Connection established</h2><p><span class="image"><img src="images/websocket-connected.png" alt="websocket-connected" /></span></p></section>
+<section class="topic source"><h2>WebSocket Lifecycle</h2><p><span class="image"><img src="images/websocket-lifecycle.png" alt="image:websocket-lifecycle.png[" /></span></p></section>
 <section class="topic source"><h2>WebSocket API</h2><img src="images/javascript-api.png" alt="javascript api" /></section>
 <section class="topic source"><h2>Browser Support</h2><p><span class="image"><img src="images/websocket-browser-support.png" alt="websocket-browser-support" /></span></p></section>
 <section class="topic source"><h2>REST vs WebSocket</h2><p>IMAGE</p></section>
@@ -92,24 +94,26 @@ public class MyEndpoint {
 public class ChatBean {
   static Set&lt;Session&gt; peers = Collections.synchronizedSet("...");
 
-  @OnOpen
+  @OnOpen <i class="conum" data-value="1"></i><b>(1)</b>
   public void onOpen(Session peer) {
     peers.add(peer);
   }
 
-  @OnClose
+  @OnClose <i class="conum" data-value="2"></i><b>(2)</b>
   public void onClose(Session peer) {
     peers.remove(peer);
   }
-  . . .</code></pre></div></section>
+  . . .</code></pre></div>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Called when connection is opened</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>Called when connection is closed</td></tr></table></div></section>
 <section class="topic source"><h2>Chat server (contd)</h2><div class="listingblock"><pre class="highlight"><code class="java">  . . .
   @OnMessage
-  public void message(String message, Session client) {
-    for (Session peer : peers) {
+  public void message(String message) {
+    for (Session peer : peers) { <i class="conum" data-value="1"></i><b>(1)</b>
       peer.getBasicRemote().sendObject(message);
     }
   }
-}</code></pre></div></section>
+}</code></pre></div>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Iterate over all the connected clients</td></tr></table></div></section>
 <section class="topic source"><h2>Chat server (simplified)</h2><div class="listingblock"><pre class="highlight"><code class="java">@ServerEndpoint("/chat")
 public class ChatBean {
   @OnMessage
@@ -119,12 +123,13 @@ public class ChatBean {
     }
   }
 }</code></pre></div></section>
-<section class="topic source"><h2>URI-template matching</h2><div class="listingblock"><pre class="highlight"><code class="java">@ServerEndpoint(“/orders/{order-id}”)
+<section class="topic source"><h2>URI-template matching</h2><div class="listingblock"><pre class="highlight"><code class="java">@ServerEndpoint("/orders/{order-id}") <i class="conum" data-value="1"></i><b>(1)</b>
 public class MyEndpoint {
-  @OnMessage public void processOrder(@PathParam(“order-id”)String orderId) {
+  @OnMessage public void processOrder(@PathParam(“order-id”)String orderId) { <i class="conum" data-value="2"></i><b>(2)</b>
     . . .
   }
-}</code></pre></div></section>
+}</code></pre></div>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Template specified as {order-id}</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>Value specified using @PathParam</td></tr></table></div></section>
 <section class="topic source"><h2>Client endpoint</h2><div class="listingblock"><pre class="highlight"><code class="java">@ClientEndpoint
 public class HelloClient {
   @OnMessage public void message(String message, Session session) {
@@ -147,7 +152,7 @@ c.connectToServer(HelloClient.class, "hello"); <i class="conum" data-value="2"><
     });
   }
 }</code></pre></div>
-<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Extend an abstract class <code>Endpoint</code></td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>Add handler for each message</td></tr><tr><td><i class="conum" data-value="3"></i><b>3</b></td><td>Handle the message</td></tr><tr><td><i class="conum" data-value="4"></i><b>4</b></td><td>Send the message to client</td></tr></table></div></section>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Extend an abstract class <code>Endpoint</code></td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>Add handler for each message</td></tr><tr><td><i class="conum" data-value="3"></i><b>3</b></td><td>Handle the text message</td></tr><tr><td><i class="conum" data-value="4"></i><b>4</b></td><td>Send the message to client</td></tr></table></div></section>
 <section class="topic source"><h2>Programmatic endpoint packaging</h2><div class="listingblock"><pre class="highlight"><code class="java">ServerEndpointConfiguration config =
   ServerEndpointConfigurationBuilder.create(MyEndpoint.class, "/foo")
     .build();</code></pre></div></section>
@@ -156,8 +161,7 @@ c.connectToServer(HelloClient.class, "hello"); <i class="conum" data-value="2"><
 <section class="topic source"><h2>Relationship with Servlet 3.1</h2><ul><li>Allows a portable way to upgrade HTTP request</li><li>New API<ul><li><code>HttpServletRequest.upgrade(ProtocolHandler handler)</code></li></ul></li></ul></section>
 <section class="topic source"><h2>Security</h2><ul><li>Authenticates using Servlet security mechanism during opening handshake<ul><li>Endpoint mapped by <em>ws://</em> is protected using security model defined using the corresponding http:// URI</li></ul></li><li>Authorization defined using <code>&lt;security-constraint&gt;</code></li><li>Transport Confidentiality using <em>wss://</em><ul><li>Access allowed over encrypted connection only</li></ul></li></ul></section>
 <section class="topic source"><h2>Debugging WebSocket messages (Wireshark)</h2><img src="images/wireshark-dump.png" alt="wireshark dump" /></section>
-<section class="topic source"><h2>References</h2></section>
-<section class="topic source"><h2>References</h2></section>
+<section class="topic source"><h2>Embeddable WebSocket using Undertow</h2></section>
 <section class="topic source"><h2>References</h2><div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">Java EE 7 samples - <a href="https://github.com/javaee-samples/javaee7-samples">https://github.com/javaee-samples/javaee7-samples</a></td></tr></table></div>
 <div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">WildFly 8 - <a href="http://wildfly.org">http://wildfly.org</a>, <a href="http://github.com/wildfly">http://github.com/wildfly</a>, @WildFlyAS</td></tr></table></div>
 <div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">Undertow - <a href="http://undertow.io">http://undertow.io</a></td></tr></table></div>
