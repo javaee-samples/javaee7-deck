@@ -26,14 +26,17 @@ Sec-WebSocket-Protocol: chat</code></pre></div>
 <div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Server echoes the header</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>Server echoes the header, completes the handshake</td></tr><tr><td><i class="conum" data-value="3"></i><b>3</b></td><td>Indicates server&#8217;s acceptance of connection</td></tr></table></div></section>
 <section class="topic source"><h2>Connection established</h2><p><span class="image"><img src="images/websocket-connected.png" alt="websocket-connected" /></span></p></section>
 <section class="topic source"><h2>WebSocket Lifecycle</h2><p><span class="image"><img src="images/websocket-lifecycle.png" alt="image:websocket-lifecycle.png[" /></span></p></section>
-<section class="topic source"><h2>WebSocket API</h2><img src="images/javascript-api.png" alt="javascript api" /></section>
-<section class="topic source"><h2>Browser Support</h2><p><span class="image"><img src="images/websocket-browser-support.png" alt="websocket-browser-support" /></span></p></section>
-<section class="topic source"><h2>REST vs WebSocket</h2><p>IMAGE</p></section>
-<section class="topic source"><h2>REST vs WebSocket</h2><p>IMAGE</p></section>
+<section class="topic source"><h2>WebSocket API</h2><img src="images/websocket-javascript-api.png" alt="700" width="470" />
+<div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content"><a href="http://www.w3.org/TR/websockets/">http://www.w3.org/TR/websockets/</a></td></tr></table></div></section>
+<section class="topic source"><h2>WebSocket JavaScript support in browsers</h2><p><span class="image"><img src="images/websocket-browser-support.png" alt="1400" width="454" /></span>
+<span class="image"><img src="images/websocket-browser-support2.png" alt="1400" width="454" /></span></p>
+<div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content"><a href="http://caniuse.com/websockets">http://caniuse.com/websockets</a></td></tr></table></div></section>
+<section class="topic source"><h2>REST vs WebSocket</h2><img src="images/websocket-rest-messages.png" alt="1200" width="606" /></section>
+<section class="topic source"><h2>REST vs WebSocket</h2><img src="images/websocket-rest-payload.png" alt="1200" width="610" /></section>
 <section class="topic source"><h2>JSR 356 Specification</h2><ul><li>Standard Java API for creating WebSocket Applications</li><li>Transparent Expert Group<ul><li><a href="http://jcp.org/en/jsr/detail?id=356">http://jcp.org/en/jsr/detail?id=356</a></li><li><a href="http://java.net/projects/websocket-spec">http://java.net/projects/websocket-spec</a></li></ul></li><li>Included in Java EE 7</li></ul></section>
 <section class="topic source"><h2>JSR 356 Implementations</h2><p><span class="image"><img src="images/glassfish-logo.png" alt="glassfish-logo" /></span> <span class="image"><img src="images/wildfly-logo.png" alt="wildfly-logo" /></span> <span class="image"><img src="images/atmosphere-logo.png" alt="atmosphere-logo" /></span>
 <span class="image"><img src="images/tomcat-logo.png" alt="tomcat-logo" /></span> <span class="image"><img src="images/jetty-logo.png" alt="jetty-logo" /></span> <span class="image"><img src="images/caucho-logo.jpg" alt="caucho-logo" /></span></p>
-<p>GlassFish 4 (RI), WildFly 8, Atmosphere, Tomcat 7.0.x/8.0.x, Jetty 9.1.x, Caucho Resin</p></section>
+<p>GlassFish 4 (RI), <em>WildFly 8</em>, Atmosphere, Tomcat 7.0.x/8.0.x, Jetty 9.1.x, Caucho Resin</p></section>
 <section class="topic source"><h2>Java API for WebSocket Features</h2><ul class="incremental"><li>API for WebSocket Server and Client Endpoint<ul><li>Annotated: <code>@ServerEndpoint</code>, <code>@ClientEndpoint</code></li><li>Programmatic: <code>Endpoint</code><ul><li>WebSocket opening handshake negotiation</li></ul></li></ul></li><li>LIfecycle callback methods</li><li>Integration with Java EE technologies</li></ul></section>
 <section class="topic source"><h2>WebSocket Annotated Endpoint</h2><div class="listingblock"><pre class="highlight"><code class="java">import javax.websocket.*;
 
@@ -160,8 +163,7 @@ c.connectToServer(HelloClient.class, "hello"); <i class="conum" data-value="2"><
 <section class="topic source"><h2>Relationship with Dependency Injection</h2><ul><li>Full Dependency Injection support required in endpoints<ul><li>Field, method, constructor injection</li></ul></li><li>Interceptors permitted too</li></ul></section>
 <section class="topic source"><h2>Relationship with Servlet 3.1</h2><ul><li>Allows a portable way to upgrade HTTP request</li><li>New API<ul><li><code>HttpServletRequest.upgrade(ProtocolHandler handler)</code></li></ul></li></ul></section>
 <section class="topic source"><h2>Security</h2><ul><li>Authenticates using Servlet security mechanism during opening handshake<ul><li>Endpoint mapped by <em>ws://</em> is protected using security model defined using the corresponding http:// URI</li></ul></li><li>Authorization defined using <code>&lt;security-constraint&gt;</code></li><li>Transport Confidentiality using <em>wss://</em><ul><li>Access allowed over encrypted connection only</li></ul></li></ul></section>
-<section class="topic source"><h2>Debugging WebSocket messages (Wireshark)</h2><img src="images/wireshark-dump.png" alt="wireshark dump" /></section>
-<section class="topic source"><h2>Embeddable WebSocket using Undertow</h2></section>
+<section class="topic source"><h2>Debugging WebSocket messages (Wireshark)</h2><img src="images/wireshark-dump.png" alt="1400" width="507" /></section>
 <section class="topic source"><h2>References</h2><div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">Java EE 7 samples - <a href="https://github.com/javaee-samples/javaee7-samples">https://github.com/javaee-samples/javaee7-samples</a></td></tr></table></div>
 <div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">WildFly 8 - <a href="http://wildfly.org">http://wildfly.org</a>, <a href="http://github.com/wildfly">http://github.com/wildfly</a>, @WildFlyAS</td></tr></table></div>
 <div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content">Undertow - <a href="http://undertow.io">http://undertow.io</a></td></tr></table></div>

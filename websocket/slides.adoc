@@ -133,24 +133,28 @@ image:websocket-lifecycle.png[image:websocket-lifecycle.png[]
 [.topic.source]
 == WebSocket API
 
-image::javascript-api.png[]
+image::websocket-javascript-api.png[700, 470]
 
-
-[.topic.source]
-== Browser Support
-
-image:websocket-browser-support.png[]
+NOTE: http://www.w3.org/TR/websockets/
 
 [.topic.source]
-== REST vs WebSocket
+== WebSocket JavaScript support in browsers
 
-IMAGE
+image:websocket-browser-support.png[1400, 454]
+image:websocket-browser-support2.png[1400, 454]
 
+NOTE: http://caniuse.com/websockets
 
 [.topic.source]
 == REST vs WebSocket
 
-IMAGE
+image::websocket-rest-messages.png[1200, 606]
+
+
+[.topic.source]
+== REST vs WebSocket
+
+image::websocket-rest-payload.png[1200, 610]
 
 
 [.topic.source]
@@ -169,7 +173,7 @@ IMAGE
 image:glassfish-logo.png[] image:wildfly-logo.png[] image:atmosphere-logo.png[]
 image:tomcat-logo.png[] image:jetty-logo.png[] image:caucho-logo.jpg[]
 
-GlassFish 4 (RI), WildFly 8, Atmosphere, Tomcat 7.0.x/8.0.x, Jetty 9.1.x, Caucho Resin
+GlassFish 4 (RI), _WildFly 8_, Atmosphere, Tomcat 7.0.x/8.0.x, Jetty 9.1.x, Caucho Resin
 
 
 [.topic.source]
@@ -489,12 +493,7 @@ ServerEndpointConfiguration config =
 [.topic.source]
 == Debugging WebSocket messages (Wireshark)
 
-image::wireshark-dump.png[]
-
-
-[.topic.source]
-== Embeddable WebSocket using Undertow
-
+image::wireshark-dump.png[1400, 507]
 
 
 [.topic.source]
