@@ -499,11 +499,9 @@ image::wireshark-dump.png[1400, 507]
 [.topic.source]
 == References
 
-NOTE: Java EE 7 samples - https://github.com/javaee-samples/javaee7-samples
+NOTE: Java EE 7 collateral - https://github.com/javaee-samples (Samples, Hands-on Lab, Slides)
 
 NOTE: WildFly 8 - http://wildfly.org, http://github.com/wildfly, @WildFlyAS
-
-NOTE: Undertow - http://undertow.io
 
 NOTE: Slides generated with Asciidoctor and DZSlides backend
 
