@@ -156,6 +156,12 @@ image::websocket-rest-messages.png[1200, 606]
 
 image::websocket-rest-payload.png[1200, 610]
 
+[.topic.source]
+== REST vs WebSocket
+
+image:websocket-rest-constant-messages.png[1000, 402]
+image:websocket-rest-constant-payload.png[1000, 402]
+
 
 [.topic.source]
 == JSR 356 Specification
@@ -413,8 +419,8 @@ public class HelloClient {
 WebSocketContainer c = ContainerProvider.getWebSocketContainer();
 c.connectToServer(HelloClient.class, "hello"); <2>
 --
-<1> process message from server
-<2> connect to server
+<1> Process message from server
+<2> Connect to server
 
 
 [.topic.source]

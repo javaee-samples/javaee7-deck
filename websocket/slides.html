@@ -33,6 +33,8 @@ Sec-WebSocket-Protocol: chat</code></pre></div>
 <div class="admonitionblock note"><table><tr><td class="icon"><i class="icon-note" title="Note"></i></td><td class="content"><a href="http://caniuse.com/websockets">http://caniuse.com/websockets</a></td></tr></table></div></section>
 <section class="topic source"><h2>REST vs WebSocket</h2><img src="images/websocket-rest-messages.png" alt="1200" width="606" /></section>
 <section class="topic source"><h2>REST vs WebSocket</h2><img src="images/websocket-rest-payload.png" alt="1200" width="610" /></section>
+<section class="topic source"><h2>REST vs WebSocket</h2><p><span class="image"><img src="images/websocket-rest-constant-messages.png" alt="1000" width="402" /></span>
+<span class="image"><img src="images/websocket-rest-constant-payload.png" alt="1000" width="402" /></span></p></section>
 <section class="topic source"><h2>JSR 356 Specification</h2><ul><li>Standard Java API for creating WebSocket Applications</li><li>Transparent Expert Group<ul><li><a href="http://jcp.org/en/jsr/detail?id=356">http://jcp.org/en/jsr/detail?id=356</a></li><li><a href="http://java.net/projects/websocket-spec">http://java.net/projects/websocket-spec</a></li></ul></li><li>Included in Java EE 7</li></ul></section>
 <section class="topic source"><h2>JSR 356 Implementations</h2><p><span class="image"><img src="images/glassfish-logo.png" alt="glassfish-logo" /></span> <span class="image"><img src="images/wildfly-logo.png" alt="wildfly-logo" /></span> <span class="image"><img src="images/atmosphere-logo.png" alt="atmosphere-logo" /></span>
 <span class="image"><img src="images/tomcat-logo.png" alt="tomcat-logo" /></span> <span class="image"><img src="images/jetty-logo.png" alt="jetty-logo" /></span> <span class="image"><img src="images/caucho-logo.jpg" alt="caucho-logo" /></span></p>
@@ -142,7 +144,7 @@ public class HelloClient {
 
 WebSocketContainer c = ContainerProvider.getWebSocketContainer();
 c.connectToServer(HelloClient.class, "hello"); <i class="conum" data-value="2"></i><b>(2)</b></code></pre></div>
-<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>process message from server</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>connect to server</td></tr></table></div></section>
+<div class="colist arabic"><table><tr><td><i class="conum" data-value="1"></i><b>1</b></td><td>Process message from server</td></tr><tr><td><i class="conum" data-value="2"></i><b>2</b></td><td>Connect to server</td></tr></table></div></section>
 <section class="topic source"><h2>Programmatic endpoint</h2><div class="listingblock"><pre class="highlight"><code class="java">public class MyEndpoint extends Endpoint { <i class="conum" data-value="1"></i><b>(1)</b>
   @Override
   public void onOpen(Session session) {
