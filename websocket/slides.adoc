@@ -1,4 +1,4 @@
-= Java API for WebSocket
+= Getting Started with WebSocket and Server-Sent Events in Java
 Arun Gupta ; Red Hat; @arungupta
 include::attributes.adoc[]
 
@@ -25,6 +25,8 @@ include::attributes.adoc[]
 ====
 * Primer on WebSocket
 * _JSR 356_: Java API for WebSocket 1.0
+* Primer on Server-Sent Events
+* Comparing WebSocket and Server-Sent Events
 ====
 
 [.topic.source]
@@ -501,6 +503,46 @@ ServerEndpointConfiguration config =
 
 image::wireshark-dump.png[1400, 507]
 
+[.topic.source]
+== Server-Sent Events
+
+[.incremental]
+* Part of HTML5 Specification
+* Server-push notifications
+* Cross-browser JavaScript API: `EventSource`
+* Message callbacks
+* MIME type: `text/eventstream`
+
+[.topic.source]
+== Server-Sent Events API
+
+image::eventsource-javascript-api.png[1200, 631]
+
+NOTE: http://www.w3.org/TR/eventsource/
+
+[.topic.source]
+== WebSocket and Server-Sent Events Comparison
+
+[options="header"]
+|====
+| WebSocket | Server-Sent Event
+| Custom protocol | Simple HTTP
+| Full-duplex, Bi-directional | Server-push only, client-server out of band
+| Native support in most browsers | Can be poly-filled to back port
+| Not straight forward protocol | Simple protocol
+|====
+
+[.topic.source]
+== WebSocket and Server-Sent Events Comparison
+
+[options="header"]
+|====
+| WebSocket | Server-Sent Event
+| Pre-defined message handlers | Arbitrary events
+| Application-specific | Built-in support for reconnection and event id
+| May require server/proxy configuration | No server/proxy changes required
+| Text and Binary | No support for binary types
+|====
 
 [.topic.source]
 == References
