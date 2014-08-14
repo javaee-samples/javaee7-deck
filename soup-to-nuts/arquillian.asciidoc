@@ -1,0 +1,54 @@
+## Arquillian
+
+### Introduction
+
+What is Arquillian ?
+Highly extensible testing platform for the JVM that enables to easily create automated tests.
+
+Java EE 7 samples are all tested using Arquillian:
+
+. WebSocket ?
+. Batch ?
+. JSON ?
+. Concurrency ?
+. JAX-RS ?
+. JMS ?
+
+### Getting started
+
+Vanilla Java EE 7 application:
+
+[source, txt]
+----
+mvn --batch-mode -DarchetypeGroupId=org.codehaus.mojo.archetypes -DarchetypeArtifactId=webapp-javaee7 -DgroupId=org.javaee7.sample -DartifactId=javaee7-sample -Dpackage=org.javaee7.sample archetype:generate
+----
+
+Testable Java EE 7 application (including Arquillian dependencies and profiles):
+
+[source, txt]
+----
+mvn --batch-mode archetype:generate -DarchetypeGroupId=org.javaee-samples -DarchetypeArtifactId=javaee7-arquillian-archetype -DgroupId=org.samples.javaee7.arquillian -DartifactId=arquillian
+----
+
+Following profiles are generated:
+
+. wildfly-remote-arquillian
+. wildfly-managed-arquillian
+. glassfish-remote-arquillian
+. glassfish-embedded-arquillian
+
+### Run the tests
+
+Test this app on WildFly
+
+. Download WildFly 8.1 from http://download.jboss.org/wildfly/8.1.0.Final/wildfly-8.1.0.Final.zip
+. Unzip and start as bin/standalone.sh
+. Run the test as: mvn test -Pwildfly-remote-arquillian
+
+Test this app on GlassFish
+
+. Download GlassFish 4.1 from http://dlc.sun.com.edgesuite.net/glassfish/4.1/promoted/latest-glassfish.zip
+. Unzip and start as bin/asadmin start-domain
+. Run the test as: mvn test -Pglassfish-remote-wildfly
+
+Simplified way to add Arquillian dependencies to existing projects
