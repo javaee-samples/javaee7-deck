@@ -1,5 +1,0 @@
-## Platform as a Service
-
-### OpenShift
-
-### CloudBees

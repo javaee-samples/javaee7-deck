@@ -1,9 +1,0 @@
-## Tooling
-
-### IntelliJ
-
-### Eclipse
-
-### JBoss Tools
-
-### Forge
