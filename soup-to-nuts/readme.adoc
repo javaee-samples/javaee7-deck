@@ -67,7 +67,7 @@ Arquillian
 </dependency>
 ----
 +
-* Create a test as `arquillian-create-test org.sample.HelloServlet`
+* Create a test as `arquillian-create-test org.sample.HelloServlet --archiveType WAR`
 * Change the generated test to:
 +
 [source,java]
