@@ -16,7 +16,7 @@ IDEs
 OpenShift
 ---------
 
-* Create a WildFly application, choose medium gear
+* Create a WildFly application, choose medium? gear
 * Clone the workspace
 * Import the project in JBDS
 * Create a new Servlet
