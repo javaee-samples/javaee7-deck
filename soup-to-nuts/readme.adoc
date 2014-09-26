@@ -3,9 +3,9 @@ Soup to Nuts Recipe
 
 Application Servers
 -------------------
-* GlassFish start, main page, admin console
-* Show WildFly start, main page, admin console (add-user.sh)
-* Show JEUS (start?)
+* GlassFish start, main page, admin console, deploy a simple application
+* Show WildFly start, main page, admin console (add-user.sh), deploy a simple application
+* Show JEUS (start?), main page (none), admin console (?), deploy a simple application
 
 IDEs
 ----
@@ -96,8 +96,19 @@ public class HelloServletTest {
 ----
 +
 * Run the test against local WildFly version as `mvn test -Parquillian-wildfly-remote`
+* Show testable Java EE 7 application
+** Generate the application as:
++
+[source,text]
+----
+mvn --batch-mode archetype:generate -DarchetypeGroupId=org.javaee-samples -DarchetypeArtifactId=javaee7-arquillian-archetype -DgroupId=org.samples.javaee7.arquillian -DartifactId=arquillian
+----
++
+* Run against locally running WildFly using `mvn test -Pwildfly-remote-arquillian`
+* Stop WildFly, start GlassFish, Run against locally running GlassFish using `mvn test -Pglassfish-remote-arquillian` and talk about https://issues.jboss.org/browse/ARQ-1596.
 
 
 Continuous Integration
 ----------------------
-* How to run the test against WildFly in OpenShift
+* How to run the test against WildFly in OpenShift (still debugging) ??
+
