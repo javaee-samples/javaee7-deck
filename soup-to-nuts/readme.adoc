@@ -3,8 +3,19 @@ Soup to Nuts Recipe
 
 Application Servers
 -------------------
-* GlassFish start, main page, admin console, deploy a simple application
-* Show WildFly start, main page, admin console (add-user.sh), deploy a simple application
+* GlassFish
+** Start: `asadmin start-domain`
+** Main page: http://localhost:8080
+** Admin console: http://localhost:4848
+** Deploy: `asadmin deploy helloworld.war`
+** Shutdown: `asadmin stop-domain`
+* WildFly
+** Start: `standalone.sh`
+** Main page: http://localhost:8080
+** Admin console: http://localhost:4848
+** Add a user in management realms using `add-user.sh`
+** Deploy: `./bin/jboss-cli.sh -c --command="deploy ~/workspaces/javaee7-simple-sample/target/helloworld.war --force"`
+** Shutdown: Ctrl+C or `./bin/jboss-cli.sh -c --command=":shutdown"`
 * Show JEUS (start?), main page (none), admin console (?), deploy a simple application
 
 IDEs
@@ -51,12 +62,12 @@ Arquillian
 ----------
 
 * Enable OpenShift-created application Java EE 7 project with Arquillian
-** Install plugin: addon-install-from-git --url https://github.com/forge/plugin-arquillian.git --coordinate org.arquillian.forge:arquillian-addon --ref forge2
-* arquillian-setup --testFramework junit --containerAdapter wildfly-remote 
+** Install plugin: `addon-install-from-git --url https://github.com/forge/plugin-arquillian.git --coordinate org.arquillian.forge:arquillian-addon --ref forge2`
+* Setup Arquillian: `arquillian-setup --testFramework junit --containerAdapter wildfly-remote`
 * Move <plugin> and <dependencies> to openshift profile
 * Comment <maven.compiler.executable> property in pom.xml
 * Add the <dependency> as `project-add-dependencies net.sourceforge.htmlunit:htmlunit:2.13:test`
-* Create a test as `arquillian-create-test org.sample.HelloServlet --archiveType WAR`
+* Create a test as `arquillian-create-test --targets org.sample.HelloServlet --archiveType WAR`
 * Change the generated test to:
 +
 [source,java]
