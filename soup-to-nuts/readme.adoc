@@ -16,7 +16,13 @@ Application Servers
 ** Add a user in management realms using `add-user.sh`
 ** Deploy: `./bin/jboss-cli.sh -c --command="deploy ~/workspaces/javaee7-simple-sample/target/helloworld.war --force"`
 ** Shutdown: Ctrl+C or `./bin/jboss-cli.sh -c --command=":shutdown"`
-* Show JEUS (start?), main page (none), admin console (?), deploy a simple application
+* JEUS
+** Start: `startManagedServer -server server1 -u administrator -p abcd1234`
+** Main page: None
+** Admin console: ??
+** Deploy: `jeusadmin install-application helloworld.war`
+*** Need to start Domain Administration Server, deploy to the Server from DAS
+** Shutdown: `jeusadmin -u administrator -p abcd1234 stop-server server1`
 
 IDEs
 ----
@@ -27,7 +33,7 @@ IDEs
 OpenShift
 ---------
 
-* Create a WildFly application, choose medium? gear
+* Create a WildFly application, choose medium gear
 * Clone the workspace
 * Import the project in JBDS
 * Create a new Servlet
@@ -63,6 +69,7 @@ Arquillian
 
 * Enable OpenShift-created application Java EE 7 project with Arquillian
 ** Install plugin: `addon-install-from-git --url https://github.com/forge/plugin-arquillian.git --coordinate org.arquillian.forge:arquillian-addon --ref forge2`
+*** Check with this command instead ` addon-install-from-git --url https://github.com/forge/addon-arquillian.git`
 * Setup Arquillian: `arquillian-setup --testFramework junit --containerAdapter wildfly-remote`
 * Move <plugin> and <dependencies> to openshift profile
 * Comment <maven.compiler.executable> property in pom.xml
