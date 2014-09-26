@@ -55,19 +55,8 @@ Arquillian
 * arquillian-setup --testFramework junit --containerAdapter wildfly-remote 
 * Move <plugin> and <dependencies> to openshift profile
 * Comment <maven.compiler.executable> property in pom.xml
-* Add the following in <dependencies>:
-+
-[source,xml]
-----
-<dependency>
-	<groupId>net.sourceforge.htmlunit</groupId>
-	<artifactId>htmlunit</artifactId>
-    <version>2.13</version>
-    <scope>test</scope>
-</dependency>
-----
-+
-* Create a test as `arquillian-create-test org.sample.HelloServlet --archiveType WAR`
+* project-add-dependencies net.sourceforge.htmlunit:htmlunit:2.13:test
+* Create a test as `arquillian-create-test --targets org.sample.HelloServlet --archiveType WAR`
 * Change the generated test to:
 +
 [source,java]
