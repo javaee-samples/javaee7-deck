@@ -1,0 +1,103 @@
+Soup to Nuts Recipe
+===================
+
+Application Servers
+-------------------
+* GlassFish start, main page, admin console
+* Show WildFly start, main page, admin console (add-user.sh)
+* Show JEUS (start?)
+
+IDEs
+----
+* NetBeans
+* Eclipse
+* IntelliJ
+
+OpenShift
+---------
+
+* Create a WildFly application, choose medium gear
+* Clone the workspace
+* Import the project in JBDS
+* Create a new Servlet
+* Add the following code in `doGet`
++
+[source,java]
+----
+String param = request.getParameter("test");
+                
+ServletOutputStream out = response.getOutputStream();
+if (param != null) {
+	out.print(param.equals("pass") ? "pass" : "fail");
+} else {
+	out.print("my GET");
+}
+----
++
+* Right-click on project, Team, Commit, Commit and Push and show how the Servlet is accessible right away
+
+Forge
+-----
+
+* Simple project creation
+** project-new --named sample
+** javaee-setup --javaEEVersion 7
+** jpa-setup --jpaVersion 2.1
+** Install plugin: addon-install-from-git --url https://github.com/forge/addon-batch 
+** batch-new-jobxml --jobXML myjob.xml --reader org.sample.MyReader --writer org.sample.MyWriter
+*** Show generated myjob.xml
+
+Arquillian
+----------
+
+* Enable OpenShift-created application Java EE 7 project with Arquillian
+** Install plugin: addon-install-from-git --url https://github.com/forge/plugin-arquillian.git --coordinate org.arquillian.forge:arquillian-addon --ref forge2
+* arquillian-setup --testFramework junit --containerAdapter wildfly-remote 
+* Move <plugin> and <dependencies> to openshift profile
+* Comment <maven.compiler.executable> property in pom.xml
+* Add the following in <dependencies>:
++
+[source,xml]
+----
+<dependency>
+	<groupId>net.sourceforge.htmlunit</groupId>
+	<artifactId>htmlunit</artifactId>
+    <version>2.13</version>
+    <scope>test</scope>
+</dependency>
+----
++
+* Create a test as `arquillian-create-test org.sample.HelloServlet`
+* Change the generated test to:
++
+[source,java]
+----
+@RunWith(Arquillian.class)
+public class HelloServletTest {
+   
+   @ArquillianResource
+   private URL base;
+
+   @Deployment(testable = false)
+   public static WebArchive createDeployment()
+   {
+      return ShrinkWrap.create(WebArchive.class)
+            .addClass(HelloServlet.class);
+   }
+
+   @Test
+   public void should_be_deployed() throws FailingHttpStatusCodeException, MalformedURLException, IOException
+   {
+	   WebClient webClient = new WebClient();
+       TextPage page = webClient.getPage(base + "/HelloServlet");
+       assertEquals("my GET", page.getContent());
+   }
+}
+----
++
+* Run the test against local WildFly version as `mvn test -Parquillian-wildfly-remote`
+
+
+Continuous Integration
+----------------------
+* How to run the test against WildFly in OpenShift
