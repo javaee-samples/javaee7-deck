@@ -110,5 +110,6 @@ mvn --batch-mode archetype:generate -DarchetypeGroupId=org.javaee-samples -Darch
 
 Continuous Integration
 ----------------------
-* How to run the test against WildFly in OpenShift (still debugging) ??
+* Use https://github.com/arquillian/arquillian-container-openshift
+* Setup Test and Production environment
 
