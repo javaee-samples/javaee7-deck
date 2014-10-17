@@ -1,0 +1,123 @@
+Soup to Nuts Recipe
+===================
+
+Application Servers
+-------------------
+* GlassFish
+** Start: `asadmin start-domain`
+** Main page: http://localhost:8080
+** Admin console: http://localhost:4848
+** Deploy: `asadmin deploy helloworld.war`
+** Shutdown: `asadmin stop-domain`
+* WildFly
+** Start: `standalone.sh`
+** Main page: http://localhost:8080
+** Admin console: http://localhost:4848
+** Add a user in management realms using `add-user.sh`
+** Deploy: `./bin/jboss-cli.sh -c --command="deploy ~/workspaces/javaee7-simple-sample/target/helloworld.war --force"`
+** Shutdown: Ctrl+C or `./bin/jboss-cli.sh -c --command=":shutdown"`
+* JEUS
+** Start: `startManagedServer -server server1 -u administrator -p abcd1234`
+** Main page: None
+** Admin console: ??
+** Deploy: `jeusadmin install-application helloworld.war`
+*** Need to start Domain Administration Server, deploy to the Server from DAS
+** Shutdown: `jeusadmin -u administrator -p abcd1234 stop-server server1`
+
+IDEs
+----
+* NetBeans
+* Eclipse
+* IntelliJ
+
+Forge
+-----
+
+* Simple project creation
+** project-new --named sample
+** javaee-setup --javaEEVersion 7
+** jpa-setup --jpaVersion 2.1
+** Install plugin: addon-install-from-git --url https://github.com/forge/addon-batch 
+** batch-new-jobxml --jobXML myjob.xml --reader org.sample.MyReader --writer org.sample.MyWriter
+*** Show generated myjob.xml
+
+OpenShift
+---------
+
+* Create a WildFly application, choose medium gear
+* Clone the workspace
+* Import the project in JBDS
+* Create a new Servlet
+* Add the following code in `doGet`
++
+[source,java]
+----
+String param = request.getParameter("test");
+                
+ServletOutputStream out = response.getOutputStream();
+if (param != null) {
+	out.print(param.equals("pass") ? "pass" : "fail");
+} else {
+	out.print("my GET");
+}
+----
++
+* Right-click on project, Team, Commit, Commit and Push and show how the Servlet is accessible right away
+
+
+Arquillian
+----------
+
+* Enable OpenShift-created application Java EE 7 project with Arquillian
+** Install plugin: `addon-install-from-git --url https://github.com/forge/plugin-arquillian.git --coordinate org.arquillian.forge:arquillian-addon --ref forge2`
+*** Check with this command instead `addon-install-from-git --url https://github.com/forge/addon-arquillian.git`
+* Setup Arquillian: `arquillian-setup --testFramework junit --containerAdapter wildfly-remote`
+* Move <plugin> and <dependencies> to openshift profile
+* Comment <maven.compiler.executable> property in pom.xml
+* Add the <dependency> as `project-add-dependencies net.sourceforge.htmlunit:htmlunit:2.13:test`
+* Create a test as `arquillian-create-test --targets org.sample.HelloServlet --archiveType WAR`
+* Change the generated test to:
++
+[source,java]
+----
+@RunWith(Arquillian.class)
+public class HelloServletTest {
+   
+   @ArquillianResource
+   private URL base;
+
+   @Deployment(testable = false)
+   public static WebArchive createDeployment()
+   {
+      return ShrinkWrap.create(WebArchive.class)
+            .addClass(HelloServlet.class);
+   }
+
+   @Test
+   public void should_be_deployed() throws FailingHttpStatusCodeException, MalformedURLException, IOException
+   {
+	   WebClient webClient = new WebClient();
+       TextPage page = webClient.getPage(base + "/HelloServlet");
+       assertEquals("my GET", page.getContent());
+   }
+}
+----
++
+* Run the test against local WildFly version as `mvn test -Parquillian-wildfly-remote`
+* Show testable Java EE 7 application
+** Generate the application as:
++
+[source,text]
+----
+mvn --batch-mode archetype:generate -DarchetypeGroupId=org.javaee-samples -DarchetypeArtifactId=javaee7-arquillian-archetype -DgroupId=org.samples.javaee7.arquillian -DartifactId=arquillian
+----
++
+* Run against locally running WildFly using `mvn test -Pwildfly-remote-arquillian`
+* Stop WildFly, start GlassFish, Run against locally running GlassFish using `mvn test -Pglassfish-remote-arquillian` and talk about https://issues.jboss.org/browse/ARQ-1596.
+
+
+Continuous Integration
+----------------------
+* Use https://github.com/arquillian/arquillian-container-openshift
+* Setup Test and Production environment
+
